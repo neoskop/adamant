@@ -1,0 +1,10 @@
+{
+  "name": "@neoskop/adamant",
+  "version": "0.0.0",
+  "description": "PouchDB ORM",
+  "main": "index.js",
+  "repository": "git@bitbucket.org:neoskop/adamant.git",
+  "author": "Mark Wecke <wecke@neoskop.de>",
+  "license": "MIT",
+  "private": false
+}
