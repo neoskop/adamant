@@ -130,10 +130,10 @@ describe('HydratorImpl', () => {
             expect(repositorySpyMap.get(BelongsToEntity)._readAll).not.to.have.been.called;
             expect(repositorySpyMap.get(BelongsToEntity).hydrator.hydrate).not.to.have.been.called;
             expect(repositorySpyMap.get(HasManyEntity)._read).not.to.have.been.called;
-            expect(repositorySpyMap.get(HasManyEntity)._readAll).to.have.been.calledOnceWith({ keys: [ 'has-many_2_a', 'has-many_2_b' ] });
+            expect(repositorySpyMap.get(HasManyEntity)._readAll).to.have.been.calledOnceWith({ keys: [ 'has-many_2_a', 'has-many_2_b' ], include_docs: true });
             expect(repositorySpyMap.get(HasManyEntity).hydrator.hydrate).not.to.have.been.called;
             expect(repositorySpyMap.get(HasManyMapEntity)._read).not.to.have.been.called;
-            expect(repositorySpyMap.get(HasManyMapEntity)._readAll).to.have.been.calledOnceWith({ keys: [ 'has-many-map_2_a', 'has-many-map_2_b' ] });
+            expect(repositorySpyMap.get(HasManyMapEntity)._readAll).to.have.been.calledOnceWith({ keys: [ 'has-many-map_2_a', 'has-many-map_2_b' ], include_docs: true });
             expect(repositorySpyMap.get(HasManyMapEntity).hydrator.hydrate).not.to.have.been.called;
             expect(repositorySpyMap.get(InlineEntityImpl)._read).not.to.have.been.called;
             expect(repositorySpyMap.get(InlineEntityImpl)._readAll).not.to.have.been.called;

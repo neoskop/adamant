@@ -65,9 +65,12 @@ export class QueryBuilder<T> {
     
     toFindRequest() {
         const req : PouchDB.Find.FindRequest<T> = {
-            selector: this._selector,
-            sort: this._sort
+            selector: this._selector
         };
+        
+        if(0 < this._sort.length) {
+            req.sort = this._sort;
+        }
         
         if(this._limit != null) {
             req.limit = this._limit;

@@ -19,10 +19,7 @@ export function equalCheckerFactory() {
 export const ADAMANT_CONNECTION = new InjectionToken<PouchDB.Database>('ADAMANT_CONNECTION');
 export const ADAMANT_ENTITY_CLASS = new InjectionToken<Ctor<any>>('ADAMANT_ENTITY_CLASS');
 export const ADAMANT_ENTITY_METADATA = new InjectionToken<Metadata<any>>('ADAMANT_ENTITY_METADATA');
-export const ADAMANT_EQUAL_CHECKER = new InjectionToken<EqualChecker>('ADAMANT_EQUAL_CHECKER',{
-    providedIn: 'root',
-    factory: equalCheckerFactory
-});
+export const ADAMANT_EQUAL_CHECKER = new InjectionToken<EqualChecker>('ADAMANT_EQUAL_CHECKER');
 
 @Injectable()
 export class AdamantRepository<T> {
@@ -54,7 +51,7 @@ export class AdamantRepository<T> {
     
         const doc = this.hydrator.dehydrate(entity, this.metadata);
         
-        const result = await this.db.upsert(doc[this.metadata.id] as any, d => {
+        const result = await this.db.upsert(this.id.build(this.metadata.name!, this.metadata.idType, entity[this.metadata.id] as any), d => {
             const { _id: _1, _rev: _2, ...d1 } = doc as any;
             const { _id: _3, _rev: _4, ...d2 } = d as any;
             
@@ -98,15 +95,11 @@ export class AdamantRepository<T> {
     }
     
     read(id : number | string, options?: HydrateOptions) {
-        return this._read(this.id.build(this.metadata.name, this.metadata.idType, id), options);
+        return this._read(this.id.build(this.metadata.name!, this.metadata.idType, id), options);
     }
     
     /** @internal */
     async _read(id : string, options?: HydrateOptions) {
-        if(options && options.circularCache && options.circularCache.hasOwnProperty(id)) {
-            return options.circularCache[id];
-        }
-        
         return this.hydrator.hydrate(Object.create(this.entityClass.prototype), await this._readRaw(id), this.metadata, options);
     }
     
@@ -132,10 +125,10 @@ export class AdamantRepository<T> {
         } as any;
         
         if(ids) {
-            opt.keys = ids.map(id => this.id.build(this.metadata.name, this.metadata.idType, id)).sort((a, b) => a.localeCompare(b));
+            opt.keys = ids.map(id => this.id.build(this.metadata.name!, this.metadata.idType, id)).sort((a, b) => a.localeCompare(b));
         } else {
-            opt.startkey = this.id.head(this.metadata.name);
-            opt.endkey = this.id.tail(this.metadata.name);
+            opt.startkey = this.id.head(this.metadata.name!);
+            opt.endkey = this.id.tail(this.metadata.name!);
         }
         
         return this._readAll(opt, options);
@@ -155,6 +148,10 @@ export class AdamantRepository<T> {
         }
         
         return (await this.db.allDocs<T>(opt)).rows.map(r => r.doc!).filter(Boolean);
+    }
+    
+    query() : QueryBuilder<T> {
+        return new QueryBuilder<T>(this, this.id.head(this.metadata.name!), this.id.tail(this.metadata.name!));
     }
     
     async executeQuery(query : QueryBuilder<T>, options? : HydrateOptions) {

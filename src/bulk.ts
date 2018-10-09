@@ -32,7 +32,7 @@ export class Bulk<T> {
     
             await this.validator.validate(entity, this.metadata);
     
-            const doc : PouchDB.Core.ChangesMeta & PouchDB.Core.Document<T> = this.hydrator.dehydrate(entity, this.metadata, { includeRev: operation === BulkOperation.Update });
+            const doc : PouchDB.Core.ChangesMeta & PouchDB.Core.Document<T> = this.hydrator.dehydrate(entity, this.metadata, { includeRev: operation === BulkOperation.Update || operation === BulkOperation.Delete });
             if(operation === BulkOperation.Delete) {
                 doc._deleted = true;
             }

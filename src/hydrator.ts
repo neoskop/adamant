@@ -9,6 +9,7 @@ import { HasManyMetadata } from './annotations/has-many';
 import { HasManyMapMetadata } from './annotations/has-many-map';
 import { InlineMetadata } from './annotations/inline';
 import { markIdRev } from './utils/marks';
+import { AdamantRepository } from './repository';
 
 export interface HydrateOptions {
     depth? : number;
@@ -76,17 +77,17 @@ export class HydratorImpl extends Hydrator {
     }
     
     async hydrate<T extends {}>(entity : T, data : PouchDB.Core.Document<T> & PouchDB.Core.GetMeta, metadata : Metadata<T>, { depth = Infinity, circularCache = {} } : HydrateOptions = {}) : Promise<T> {
+        if(data._id in circularCache) {
+            return circularCache[ data._id ];
+        }
+    
+        circularCache[ data._id ] = entity;
+        
         markIdRev(entity, { id: data._id, rev: data._rev });
         
         if(metadata.attachments) {
             Object.defineProperty(entity, '_attachments', { configurable: true, value: data._attachments });
         }
-        
-        if(data._id in circularCache) {
-            return circularCache[ data._id ];
-        }
-        
-        circularCache[ data._id ] = entity;
         
         for(const [ property, annotation ] of metadata.properties) {
             const value : any = data[ property as keyof T ];
@@ -97,29 +98,20 @@ export class HydratorImpl extends Hydrator {
                     const relationMetadata = this.connectionManager.getMetadata(annotation.type);
                     
                     if(annotation instanceof BelongsToMetadata) {
-                        entity[ property as keyof T ] = await this.connectionManager
+                        entity[ property as keyof T ] = circularCache.hasOwnProperty(value) ? circularCache[value] : await this.connectionManager
                             .getRepository(annotation.type)
                             ._read(value, {
                                 depth: depth - 1,
                                 circularCache
                             });
                     } else if(annotation instanceof HasManyMetadata) {
-                        entity[ property as keyof T ] = await this.connectionManager
-                            .getRepository(annotation.type)
-                            ._readAll({ keys: value }, {
-                                depth: depth - 1,
-                                circularCache
-                            }) as any;
+                        entity[ property as keyof T ] = await readAllWithCircularCache(this.connectionManager.getRepository(annotation.type), value, depth - 1, circularCache) as any;
+                        
                     } else if(annotation instanceof HasManyMapMetadata) {
                         const keys = Object.keys(value);
                         const values = keys.map(k => value[ k ]);
                         
-                        const entities = await this.connectionManager
-                            .getRepository(annotation.type)
-                            ._readAll({ keys: values }, {
-                                depth: depth - 1,
-                                circularCache
-                            });
+                        const entities = await readAllWithCircularCache(this.connectionManager.getRepository(annotation.type), values, depth - 1, circularCache);
                         const rel : any = {};
                         for(const key of keys) {
                             rel[ key ] = entities.find(e => e._id === value[ key ]);
@@ -131,13 +123,33 @@ export class HydratorImpl extends Hydrator {
                             .hydrator.hydrate(Object.create(annotation.type.prototype), value, relationMetadata)
                     }
                 } else if(annotation instanceof PropertyMetadata) {
-                    entity[ property as keyof T ] = unpack(value, annotation.type);
+                    const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(entity), property);
+                    if(!descriptor || descriptor.writable || descriptor.set) {
+                        entity[ property as keyof T ] = unpack(value, annotation.type);
+                    }
                 }
             }
         }
         
         return entity;
     }
+}
+
+async function readAllWithCircularCache<T>(repo : AdamantRepository<T>, keys : string[], depth : number, circularCache : { [ key : string ] : any }) : Promise<T[]> {
+    const filteredKeys = keys.filter(k => !circularCache.hasOwnProperty(k));
+    let fromDb : T[];
+    
+    if(filteredKeys.length) {
+        fromDb = await repo._readAll({ keys: filteredKeys, include_docs: true }, { depth, circularCache });
+    }
+    
+    return keys.map(key => {
+        if(circularCache.hasOwnProperty(key)) {
+            return circularCache[key];
+        }
+        
+        return fromDb && fromDb.find(e => (e as any)._id === key);
+    })
 }
 
 function relationToId<T>(rel : string | T, metadata : Metadata<T>, id : AdamantId) : string {

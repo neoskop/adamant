@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "test": "mocha -r ts-node/register 'src/**/*.spec.ts'",
+    "test": "mocha -r ts-node/register 'src/**/*.spec.ts' 'tests/**/*.spec.ts'",
     "coverage": "nyc -e '.ts' -r html -r text npm test"
   },
   "devDependencies": {
@@ -27,6 +27,8 @@
     "chai-as-promised": "7.1.1",
     "mocha": "5.2.0",
     "nyc": "13.0.1",
+    "pouchdb": "7.0.0",
+    "pouchdb-adapter-memory": "7.0.0",
     "pouchdb-find": "7.0.0",
     "pouchdb-upsert": "2.2.0",
     "reflect-metadata": "0.1.12",
