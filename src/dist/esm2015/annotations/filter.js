@@ -1,0 +1,17 @@
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
+ */
+import { populate, pushPropertyMetadata } from '../utils/metadata';
+export class FilterMetadata {
+}
+/**
+ * @return {?}
+ */
+export function Filter() {
+    return (target, property) => {
+        pushPropertyMetadata(target.constructor, property, populate(new FilterMetadata(), {}));
+    };
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZmlsdGVyLmpzIiwic291cmNlUm9vdCI6Im5nOi8vQG5lb3Nrb3AvYWRhbWFudC8iLCJzb3VyY2VzIjpbImFubm90YXRpb25zL2ZpbHRlci50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7O0FBQUEsT0FBTyxFQUFFLFFBQVEsRUFBRSxvQkFBb0IsRUFBRSxNQUFNLG1CQUFtQixDQUFDO0FBR25FLE1BQU07Q0FBd0I7Ozs7QUFFOUIsTUFBTTtJQUNGLE9BQU8sQ0FBQyxNQUFjLEVBQUUsUUFBeUIsRUFBRSxFQUFFO1FBQ2pELG9CQUFvQixDQUFDLE1BQU0sQ0FBQyxXQUFXLEVBQUUsUUFBUSxFQUFFLFFBQVEsQ0FBQyxJQUFJLGNBQWMsRUFBRSxFQUFFLEVBQ2pGLENBQUMsQ0FBQyxDQUFBO0tBQ04sQ0FBQTtDQUNKIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgcG9wdWxhdGUsIHB1c2hQcm9wZXJ0eU1ldGFkYXRhIH0gZnJvbSAnLi4vdXRpbHMvbWV0YWRhdGEnO1xuXG5cbmV4cG9ydCBjbGFzcyBGaWx0ZXJNZXRhZGF0YSB7fVxuXG5leHBvcnQgZnVuY3Rpb24gRmlsdGVyKCkgOiBQcm9wZXJ0eURlY29yYXRvciB7XG4gICAgcmV0dXJuICh0YXJnZXQ6IE9iamVjdCwgcHJvcGVydHk6IHN0cmluZyB8IHN5bWJvbCkgPT4ge1xuICAgICAgICBwdXNoUHJvcGVydHlNZXRhZGF0YSh0YXJnZXQuY29uc3RydWN0b3IsIHByb3BlcnR5LCBwb3B1bGF0ZShuZXcgRmlsdGVyTWV0YWRhdGEoKSwge1xuICAgICAgICB9KSlcbiAgICB9XG59XG4iXX0=

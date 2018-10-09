@@ -4,7 +4,6 @@ import { Entity } from './annotations/entity';
 import { Id } from './annotations/id';
 import { Metadata } from './metadata';
 import { Property } from './annotations/property';
-import { HydratorImpl } from './hydrator';
 import { adamantIdFactory } from './connection-manager';
 import { SinonSpy, spy, stub } from 'sinon';
 import { BelongsTo } from './annotations/belongs-to';
@@ -14,6 +13,7 @@ import { Inline } from './annotations/inline';
 import { Ctor, populate } from './utils/metadata';
 import { InlineEntity } from './annotations/inline-entity';
 import { markIdRev } from './utils/marks';
+import { HydratorImpl } from './hydrator-impl';
 
 use(require('chai-as-promised'));
 

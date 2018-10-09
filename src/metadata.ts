@@ -69,7 +69,7 @@ export class Metadata<T> {
     }
     
     protected assert() {
-        for(const key of ((this.inline ? [ 'hydrator', 'validator' ] : [ 'id', 'idStrategy', 'name', 'attachments', 'hydrator', 'validator' ]) as (keyof Metadata<T>)[])) {
+        for(const key of ((this.inline ? [] : [ 'id', 'idStrategy', 'name', 'attachments' ]) as (keyof Metadata<T>)[])) {
             if(null == this[key]) {
                 throw new Error(`Missing metadata '${key}' for entity "${this.entity.name}"`);
             }

@@ -1,21 +1,21 @@
 import { Ctor, populate, pushClassMetadata } from '../utils/metadata';
-import { Hydrator, HydratorImpl } from '../hydrator';
-import { Validator, ValidatorImpl } from '../validator';
+import { Hydrator } from '../hydrator';
+import { Validator } from '../validator';
 
 export class InlineEntityMetadata {
     inline!: true;
-    hydrator!: Ctor<Hydrator>;
-    validator!: Ctor<Validator>;
+    hydrator?: Ctor<Hydrator>;
+    validator?: Ctor<Validator>;
 }
 
 export function InlineEntity(options: {
-    hydrator?: Ctor<any>;
-    validator?: Ctor<any>;
+    hydrator?: Ctor<Hydrator>;
+    validator?: Ctor<Validator>;
 } = {}) : ClassDecorator {
     return (target : Function) => {
         pushClassMetadata(target, populate(new InlineEntityMetadata(), {
-            hydrator: HydratorImpl,
-            validator: ValidatorImpl,
+            // hydrator: HydratorImpl,
+            // validator: ValidatorImpl,
             ...options,
             inline: true
         }));

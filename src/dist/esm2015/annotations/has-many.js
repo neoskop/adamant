@@ -1,0 +1,24 @@
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
+ */
+import { RelationMetadata } from './relation';
+import { populate, pushPropertyMetadata } from '../utils/metadata';
+/**
+ * @template T
+ */
+export class HasManyMetadata extends RelationMetadata {
+}
+/**
+ * @template T
+ * @param {?} type
+ * @param {?=} options
+ * @return {?}
+ */
+export function HasMany(type, options = {}) {
+    return (target, property) => {
+        pushPropertyMetadata(target.constructor, property, populate(new HasManyMetadata(), Object.assign({ type, required: false }, options)));
+    };
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaGFzLW1hbnkuanMiLCJzb3VyY2VSb290Ijoibmc6Ly9AbmVvc2tvcC9hZGFtYW50LyIsInNvdXJjZXMiOlsiYW5ub3RhdGlvbnMvaGFzLW1hbnkudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7OztBQUFBLE9BQU8sRUFBRSxnQkFBZ0IsRUFBRSxNQUFNLFlBQVksQ0FBQztBQUM5QyxPQUFPLEVBQVEsUUFBUSxFQUFFLG9CQUFvQixFQUFFLE1BQU0sbUJBQW1CLENBQUM7Ozs7QUFHekUsTUFBTSxzQkFBMEIsU0FBUSxnQkFBbUI7Q0FBRzs7Ozs7OztBQUU5RCxNQUFNLGtCQUFxQixJQUEwQixFQUFFLFVBQStDLEVBQUU7SUFDcEcsT0FBTyxDQUFDLE1BQWMsRUFBRSxRQUF5QixFQUFFLEVBQUU7UUFDakQsb0JBQW9CLENBQUMsTUFBTSxDQUFDLFdBQVcsRUFBRSxRQUFRLEVBQUUsUUFBUSxDQUFDLElBQUksZUFBZSxFQUFFLGtCQUM3RSxJQUFJLEVBQ0osUUFBUSxFQUFFLEtBQUssSUFDWixPQUFPLEVBQ1osQ0FBQyxDQUFBO0tBQ04sQ0FBQTtDQUNKIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgUmVsYXRpb25NZXRhZGF0YSB9IGZyb20gJy4vcmVsYXRpb24nO1xuaW1wb3J0IHsgQ3RvciwgcG9wdWxhdGUsIHB1c2hQcm9wZXJ0eU1ldGFkYXRhIH0gZnJvbSAnLi4vdXRpbHMvbWV0YWRhdGEnO1xuaW1wb3J0IHsgRm9yd2FyZFJlZkZuIH0gZnJvbSAnQGFuZ3VsYXIvY29yZSc7XG5cbmV4cG9ydCBjbGFzcyBIYXNNYW55TWV0YWRhdGE8VD4gZXh0ZW5kcyBSZWxhdGlvbk1ldGFkYXRhPFQ+IHt9XG5cbmV4cG9ydCBmdW5jdGlvbiBIYXNNYW55PFQ+KHR5cGU6IEN0b3I8VD58Rm9yd2FyZFJlZkZuLCBvcHRpb25zOiB7IHJlcXVpcmVkPzogYm9vbGVhbiwgZGVmYXVsdD86IFQgfSA9IHt9KSA6IFByb3BlcnR5RGVjb3JhdG9yIHtcbiAgICByZXR1cm4gKHRhcmdldDogT2JqZWN0LCBwcm9wZXJ0eTogc3RyaW5nIHwgc3ltYm9sKSA9PiB7XG4gICAgICAgIHB1c2hQcm9wZXJ0eU1ldGFkYXRhKHRhcmdldC5jb25zdHJ1Y3RvciwgcHJvcGVydHksIHBvcHVsYXRlKG5ldyBIYXNNYW55TWV0YWRhdGEoKSwge1xuICAgICAgICAgICAgdHlwZSxcbiAgICAgICAgICAgIHJlcXVpcmVkOiBmYWxzZSxcbiAgICAgICAgICAgIC4uLm9wdGlvbnNcbiAgICAgICAgfSkpXG4gICAgfVxufVxuIl19

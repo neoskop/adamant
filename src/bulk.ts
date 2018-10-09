@@ -1,7 +1,7 @@
 import { Hydrator } from './hydrator';
 import { Validator } from './validator';
 import { Ctor } from './utils/metadata';
-import { ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA } from './repository';
+import { ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA } from './injector-tokens';
 import { Inject } from '@angular/core';
 import { markDeleted, markIdRev } from './utils/marks';
 import { Metadata } from './metadata';

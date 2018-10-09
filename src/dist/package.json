@@ -1,0 +1,20 @@
+{
+  "name": "@neoskop/adamant",
+  "peerDependencies": {
+    "fast-deep-equal": ">=2.0.1",
+    "@angular/core": ">=6.0.0"
+  },
+  "main": "bundles/neoskop-adamant.umd.js",
+  "module": "fesm5/neoskop-adamant.js",
+  "es2015": "fesm2015/neoskop-adamant.js",
+  "esm5": "esm5/neoskop-adamant.js",
+  "esm2015": "esm2015/neoskop-adamant.js",
+  "fesm5": "fesm5/neoskop-adamant.js",
+  "fesm2015": "fesm2015/neoskop-adamant.js",
+  "typings": "neoskop-adamant.d.ts",
+  "metadata": "neoskop-adamant.metadata.json",
+  "sideEffects": false,
+  "dependencies": {
+    "tslib": "^1.9.0"
+  }
+}

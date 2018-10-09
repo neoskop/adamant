@@ -1,4 +1,4 @@
-import PouchDB  from 'pouchdb';
+import * as PouchDB from 'pouchdb';
 
 PouchDB.plugin(require('pouchdb-adapter-memory'));
 PouchDB.plugin(require('pouchdb-upsert'));

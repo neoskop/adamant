@@ -4,7 +4,7 @@ import { Entity } from './annotations/entity';
 import { Id } from './annotations/id';
 import { Metadata } from './metadata';
 import { Property } from './annotations/property';
-import { ValidatorImpl } from './validator';
+import { ValidatorImpl } from './validator-impl';
 
 use(require('chai-as-promised'));
 

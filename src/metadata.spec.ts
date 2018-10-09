@@ -8,8 +8,6 @@ import { BelongsTo, BelongsToMetadata } from './annotations/belongs-to';
 import { Inline, InlineMetadata } from './annotations/inline';
 import { HasMany, HasManyMetadata } from './annotations/has-many';
 import { HasManyMap, HasManyMapMetadata } from './annotations/has-many-map';
-import { HydratorImpl } from './hydrator';
-import { ValidatorImpl } from './validator';
 import { InlineEntity } from './annotations/inline-entity';
 
 @Entity('default-entity')
@@ -95,8 +93,8 @@ describe('Metadata', () => {
         
         expect(metadata.name).to.be.equal('full');
         expect(metadata.attachments).to.be.false;
-        expect(metadata.hydrator).to.be.equal(HydratorImpl);
-        expect(metadata.validator).to.be.equal(ValidatorImpl);
+        expect(metadata.hydrator).to.be.undefined;
+        expect(metadata.validator).to.be.undefined;
         
         expect(metadata.id).to.be.equal('id');
         expect(metadata.idType).to.be.equal(String);
