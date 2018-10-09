@@ -96,31 +96,30 @@ export class HydratorImpl extends Hydrator {
             } else {
                 if(annotation instanceof RelationMetadata) {
                     const relationMetadata = this.connectionManager.getMetadata(annotation.type);
+                    const relationRepository = this.connectionManager.getRepository(annotation.type);
                     
                     if(annotation instanceof BelongsToMetadata) {
-                        entity[ property as keyof T ] = circularCache.hasOwnProperty(value) ? circularCache[value] : await this.connectionManager
-                            .getRepository(annotation.type)
+                        entity[ property as keyof T ] = circularCache.hasOwnProperty(value) ? circularCache[value] : await relationRepository
                             ._read(value, {
                                 depth: depth - 1,
                                 circularCache
                             });
                     } else if(annotation instanceof HasManyMetadata) {
-                        entity[ property as keyof T ] = await readAllWithCircularCache(this.connectionManager.getRepository(annotation.type), value, depth - 1, circularCache) as any;
+                        entity[ property as keyof T ] = await readAllWithCircularCache(relationRepository, value, depth - 1, circularCache) as any;
                         
                     } else if(annotation instanceof HasManyMapMetadata) {
                         const keys = Object.keys(value);
                         const values = keys.map(k => value[ k ]);
                         
-                        const entities = await readAllWithCircularCache(this.connectionManager.getRepository(annotation.type), values, depth - 1, circularCache);
+                        const entities = await readAllWithCircularCache(relationRepository, values, depth - 1, circularCache);
                         const rel : any = {};
                         for(const key of keys) {
                             rel[ key ] = entities.find(e => e._id === value[ key ]);
                         }
                         entity[ property as keyof T ] = rel;
                     } else if(annotation instanceof InlineMetadata) {
-                        entity[ property as keyof T ] = await this.connectionManager
-                            .getRepository(annotation.type)
-                            .hydrator.hydrate(Object.create(annotation.type.prototype), value, relationMetadata)
+                        entity[ property as keyof T ] = await relationRepository
+                            .hydrator.hydrate(relationRepository.build(), value, relationMetadata)
                     }
                 } else if(annotation instanceof PropertyMetadata) {
                     const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(entity), property);

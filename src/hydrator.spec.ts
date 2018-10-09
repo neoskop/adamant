@@ -94,6 +94,9 @@ describe('HydratorImpl', () => {
                         hydrator: {
                             hydrate: stub().resolves(populate(new InlineEntityImpl(), { key: 'foobar' })),
                             dehydrate: stub().returns({ key: 'foobar' })
+                        },
+                        build(props = {}) {
+                            return populate(Object.create(entity.prototype), props);
                         }
                     })
                 }

@@ -1,6 +1,6 @@
 import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { Validator } from './validator';
-import { Ctor } from './utils/metadata';
+import { Ctor, populate } from './utils/metadata';
 import { HydrateOptions, Hydrator } from './hydrator';
 import { Metadata } from './metadata';
 import { Bulk } from './bulk';
@@ -51,20 +51,25 @@ export class AdamantRepository<T> {
     
         const doc = this.hydrator.dehydrate(entity, this.metadata);
         
-        const result = await this.db.upsert(this.id.build(this.metadata.name!, this.metadata.idType, entity[this.metadata.id] as any), d => {
-            const { _id: _1, _rev: _2, ...d1 } = doc as any;
-            const { _id: _3, _rev: _4, ...d2 } = d as any;
-            
-            if(this.equal(d1, d2)) {
-                return false;
-            }
-            
-            return doc;
-        });
+        const result = await this._upsert(this.id.build(this.metadata.name!, this.metadata.idType, entity[this.metadata.id] as any), doc);
         
         markIdRev(entity, result);
         
         return entity;
+    }
+    
+    /** @internal */
+    _upsert(id : string, document : PouchDB.Core.Document<T> & Partial<PouchDB.Core.RevisionIdMeta>) : Promise<PouchDB.UpsertResponse> {
+        return this.db.upsert(id, existingDoc => {
+            const { _id: _1, _rev: _2, ...d1 } = document as any;
+            const { _id: _3, _rev: _4, ...d2 } = existingDoc as any;
+    
+            if(this.equal(d1, d2)) {
+                return false;
+            }
+    
+            return document;
+        })
     }
     
     async update(entity : T) : Promise<T> {
@@ -158,5 +163,9 @@ export class AdamantRepository<T> {
         return await Promise.all((await this.db.find(query.toFindRequest())).docs
             .map(async doc => this.hydrator.hydrate(Object.create(this.entityClass.prototype), doc, this.metadata, options))
         )
+    }
+    
+    build(props : Partial<T> = {}) : T {
+        return populate(Object.create(this.entityClass.prototype), props);
     }
 }
