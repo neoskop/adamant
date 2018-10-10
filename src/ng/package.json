@@ -1,0 +1,15 @@
+{
+  "name": "@neoskop/adamant/ng",
+  "peerDependencies": {
+    "fast-deep-equal": ">=2.0.1",
+    "@angular/core": ">=6.0.0"
+  },
+  "ngPackage": {
+    "lib": {
+      "entryFile": "index.ts",
+      "umdModuleIds": {
+        "fast-deep-equal": "fastDeepEqual"
+      }
+    }
+  }
+}

@@ -2,6 +2,18 @@
 # yarn lockfile v1
 
 
+"@angular/animations@6.1.9":
+  version "6.1.9"
+  resolved "https://registry.yarnpkg.com/@angular/animations/-/animations-6.1.9.tgz#1d87469e6f6b89a8713570dfbe97700ea85bd007"
+  dependencies:
+    tslib "^1.9.0"
+
+"@angular/common@6.1.9":
+  version "6.1.9"
+  resolved "https://registry.yarnpkg.com/@angular/common/-/common-6.1.9.tgz#638fa8e8e30626116ea9ea36e6f2f00fed971f77"
+  dependencies:
+    tslib "^1.9.0"
+
 "@angular/compiler-cli@6.1.9":
   version "6.1.9"
   resolved "https://registry.yarnpkg.com/@angular/compiler-cli/-/compiler-cli-6.1.9.tgz#9ac56fc3ea274c897ccbb3c3fe0aaa100c01137d"
@@ -22,6 +34,32 @@
   resolved "https://registry.yarnpkg.com/@angular/core/-/core-6.1.9.tgz#a21a35de551c95f276ecbb1f314949cc69326950"
   dependencies:
     tslib "^1.9.0"
+
+"@angular/http@6.1.9":
+  version "6.1.9"
+  resolved "https://registry.yarnpkg.com/@angular/http/-/http-6.1.9.tgz#241f35207d62f86bc155feb124a1e73515d66fb6"
+  dependencies:
+    tslib "^1.9.0"
+
+"@angular/platform-browser-dynamic@6.1.9":
+  version "6.1.9"
+  resolved "https://registry.yarnpkg.com/@angular/platform-browser-dynamic/-/platform-browser-dynamic-6.1.9.tgz#e00f1a4948b4c299b17c9561d83f7ea588117818"
+  dependencies:
+    tslib "^1.9.0"
+
+"@angular/platform-browser@6.1.9":
+  version "6.1.9"
+  resolved "https://registry.yarnpkg.com/@angular/platform-browser/-/platform-browser-6.1.9.tgz#6c832e528c660ad880a16531754e65b9b97d4f9f"
+  dependencies:
+    tslib "^1.9.0"
+
+"@angular/platform-server@6.1.9":
+  version "6.1.9"
+  resolved "https://registry.yarnpkg.com/@angular/platform-server/-/platform-server-6.1.9.tgz#431f40278b52779825d5e087283b5d823d72c29d"
+  dependencies:
+    domino "^2.0.1"
+    tslib "^1.9.0"
+    xhr2 "^0.1.4"
 
 "@babel/code-frame@7.0.0-beta.51":
   version "7.0.0-beta.51"
@@ -146,6 +184,10 @@
 "@types/estree@0.0.39":
   version "0.0.39"
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
+
+"@types/json5@^0.0.29":
+  version "0.0.29"
+  resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
 
 "@types/mocha@5.2.5":
   version "5.2.5"
@@ -1003,6 +1045,10 @@ deep-extend@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/deep-extend/-/deep-extend-0.6.0.tgz#c4fa7c95404a17a9c3e8ca7e1537312b736330ac"
 
+deepmerge@^2.0.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.2.1.tgz#5d3ff22a01c00f645405a2fbc17d0778a1801170"
+
 default-require-extensions@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/default-require-extensions/-/default-require-extensions-2.0.0.tgz#f5f8fbb18a7d6d50b21f641f649ebb522cfe24f7"
@@ -1056,6 +1102,10 @@ detect-libc@^1.0.2, detect-libc@^1.0.3:
 diff@3.5.0, diff@^3.1.0, diff@^3.2.0, diff@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"
+
+domino@^2.0.1:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/domino/-/domino-2.1.0.tgz#653ba7d331441113b42e40ba05f24253ec86e02e"
 
 dot-prop@^4.1.0:
   version "4.2.0"
@@ -1993,6 +2043,12 @@ json-schema@0.2.3:
 json-stringify-safe@~5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz#1296a2d58fd45f19a0f6ce01d65701e2c735b6eb"
+
+json5@^1.0.1:
+  version "1.0.1"
+  resolved "http://registry.npmjs.org/json5/-/json5-1.0.1.tgz#779fb0018604fa854eacbf6252180d83543e3dbe"
+  dependencies:
+    minimist "^1.2.0"
 
 jsonfile@^4.0.0:
   version "4.0.0"
@@ -4056,6 +4112,16 @@ ts-node@7.0.1:
     source-map-support "^0.5.6"
     yn "^2.0.0"
 
+tsconfig-paths@3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/tsconfig-paths/-/tsconfig-paths-3.6.0.tgz#f14078630d9d6e8b1dc690c1fc0cfb9cd0663891"
+  dependencies:
+    "@types/json5" "^0.0.29"
+    deepmerge "^2.0.1"
+    json5 "^1.0.1"
+    minimist "^1.2.0"
+    strip-bom "^3.0.0"
+
 tsickle@^0.32.1:
   version "0.32.1"
   resolved "https://registry.yarnpkg.com/tsickle/-/tsickle-0.32.1.tgz#f16e94ba80b32fc9ebe320dc94fbc2ca7f3521a5"
@@ -4255,6 +4321,10 @@ write-stream@~0.4.3:
 xdg-basedir@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/xdg-basedir/-/xdg-basedir-3.0.0.tgz#496b2cc109eca8dbacfe2dc72b603c17c5870ad4"
+
+xhr2@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/xhr2/-/xhr2-0.1.4.tgz#7f87658847716db5026323812f818cadab387a5f"
 
 xtend@^4.0.0, xtend@^4.0.1, xtend@~4.0.0, xtend@~4.0.1:
   version "4.0.1"
