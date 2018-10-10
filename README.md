@@ -77,7 +77,7 @@ const personRepo = connection.getRepository(PersonEntity);
 const janeDoe = personRepo.build({ id: '1', name: 'Jane Doe' });
 const jonDoe = personRepo.build({ id: '2', name: 'Jon Doe' });
 
-await personRepo.build.create([ janeDoe, jonDoe ]); // persist multiple entities at once
+await personRepo.bulk.create([ janeDoe, jonDoe ]); // persist multiple entities at once
 
 const cls = classRepo.build({ id: '2a', persons: [ janeDoe, jonDoe ] });
 
