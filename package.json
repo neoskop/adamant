@@ -10,7 +10,10 @@
   "scripts": {
     "test": "mocha -r ts-node/register -r tsconfig-paths/register 'src/**/*.spec.ts' 'tests/**/*.spec.ts'",
     "coverage": "nyc -e '.ts' -r html -r text npm test",
-    "build": "ng-packagr -p src/package.json"
+    "prebuild": "npm run coverage",
+    "build": "ng-packagr -p src/package.json",
+    "publish-please": "publish-please",
+    "prepublishOnly": "publish-please guard"
   },
   "devDependencies": {
     "@angular/animations": "6.1.9",
