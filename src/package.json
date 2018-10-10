@@ -10,6 +10,7 @@
       "umdModuleIds": {
         "fast-deep-equal": "fastDeepEqual"
       }
-    }
+    },
+    "dest": "../dist"
   }
 }
