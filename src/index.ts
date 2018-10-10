@@ -14,6 +14,7 @@ export * from './annotations/view';
 
 export * from './bulk';
 export * from './connection-manager';
+export * from './factories';
 export * from './hydrator';
 export * from './hydrator-impl';
 export * from './injector-tokens';

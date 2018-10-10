@@ -5,7 +5,6 @@ import { HydrateOptions, Hydrator } from './hydrator';
 import { Metadata } from './metadata';
 import { Bulk } from './bulk';
 import { markDeleted, markIdRev } from './utils/marks';
-import * as equal from 'fast-deep-equal';
 import { ReadQueryBatcher } from './read-query-batcher';
 import { QueryBuilder } from './query-builder';
 import { DesignDocMetadata } from './annotations/design-doc';
@@ -23,10 +22,6 @@ import {
 } from './injector-tokens';
 import { AdamantDeletedMeta, AdamantEntityMeta, AdamantRevMeta } from './meta-interfaces';
 
-
-export function equalCheckerFactory() {
-    return equal;
-}
 
 
 @Injectable()
@@ -203,10 +198,12 @@ export class AdamantRepository<T> {
         
         for(const [ property, annotations ] of propertyAnnotations) {
             for(const annotation of annotations) {
+                /* istanbul ignore else */
                 if(annotation instanceof ViewMetadata) {
                     const value : any = doc[ property as keyof T ];
                     const type = typeof value;
-                    
+    
+                    /* istanbul ignore else */
                     if(type === 'string' || type === 'function') {
                         document.views[ property as string ] = {
                             map: value.toString()
@@ -248,15 +245,12 @@ export class AdamantRepository<T> {
             throw new Error(`Invalid design doc entity`);
         }
         
-        const propertyAnnotation = getPropertyMetadata(designDoc, name as string, ViewMetadata);
+        const propertyAnnotations = getPropertyMetadata(designDoc, name as string, ViewMetadata);
         
-        if(!propertyAnnotation) {
+        if(0 === propertyAnnotations.length) {
             throw new Error(`Unknown view "${name}"`);
         }
         
-        if(!options) {
-            options = {}
-        }
         options.include_docs = true;
         
         return await Promise.all((await this.rawView(`${classAnnotation.name}/${name}`, options))

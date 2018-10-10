@@ -26,6 +26,12 @@ class TestEntity {
     changes?: number;
 }
 
+@Entity('test2')
+class Test2Entity {
+    @Id()
+    id!: string;
+}
+
 @DesignDoc(TestEntity, 'test-ddoc')
 class TestDesignDoc {
     @View()
@@ -62,7 +68,7 @@ class TestDesignDoc {
     };
 }
 
-@DesignDoc(TestEntity, 'test-ddoc2')
+@DesignDoc(Test2Entity, 'test-ddoc2')
 class TestDesignDoc2 {
     @View()
     simple = (doc : any) => emit([ 'simple', doc.id ]);
@@ -94,6 +100,11 @@ describe('Design Docs', () => {
         return db.destroy();
     });
     
+    it('it should reject invalid design doc class when persisting', async () => {
+        await expect(repository.persistDesignDoc({})).to.eventually.rejectedWith('Design doc annotation required');
+        await expect(repository.persistDesignDoc(new TestDesignDoc2())).to.eventually.rejectedWith('Invalid design doc entity');
+    });
+    
     it('should create design doc', async () => {
         const { rows } = await db.allDocs({ include_docs: true });
         
@@ -116,8 +127,14 @@ describe('Design Docs', () => {
         expect(rows[0].doc.validate_doc_update).to.be.a('string');
     });
     
+    it('should not update design doc for no changes', async () => {
+        await repository.persistDesignDoc(new TestDesignDoc());
+        
+        expect((await db.get('_design/test-ddoc'))._rev).to.match(/^1-[a-z0-9]{32}$/);
+    });
+    
     it('should upsert design doc', async () => {
-        await repository.persistDesignDoc(new TestDesignDoc2());
+        await connection.getRepository(Test2Entity).persistDesignDoc(new TestDesignDoc2());
         
         const doc = await db.get('_design/test-ddoc2');
     
@@ -160,6 +177,12 @@ describe('Design Docs', () => {
         
         expect(entities).to.be.an('array').with.length(3);
         expect(entities[0]).to.be.instanceOf(TestEntity);
+    });
+    
+    it('should reject invalid design doc class for querying', async () => {
+        await expect(repository.view(Function, 'name')).to.eventually.rejectedWith('Design doc annotation required');
+        await expect(repository.view(TestDesignDoc2, 'simple')).to.eventually.rejectedWith('Invalid design doc entity');
+        await expect(repository.view(TestDesignDoc, 'invalid' as any)).to.eventually.rejectedWith('Unknown view "invalid"');
     });
     
     it('should return raw view', async () => {

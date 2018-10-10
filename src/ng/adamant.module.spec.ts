@@ -50,7 +50,7 @@ describe('AdamantModule', () => {
         });
     
         it('should create', () => {
-            expect(AdamantModule).not.to.be.undefined
+            expect(AdamantModule).to.exist;
         });
     
         it('should provide connection-manager', inject([ AdamantConnectionManager ], (connection : AdamantConnectionManager) => {

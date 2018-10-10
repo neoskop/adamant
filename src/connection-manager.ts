@@ -1,7 +1,5 @@
 import { Inject, Injectable, Injector } from '@angular/core';
-import {
-    AdamantRepository, equalCheckerFactory
-} from './repository';
+import { AdamantRepository } from './repository';
 import { Ctor } from './utils/metadata';
 import { Metadata } from './metadata';
 import { Bulk } from './bulk';
@@ -11,47 +9,15 @@ import { HydratorImpl } from './hydrator-impl';
 import { ValidatorImpl } from './validator-impl';
 import {
     ADAMANT_CONNECTION,
-    ADAMANT_CONNECTION_FACTORY, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA,
+    ADAMANT_CONNECTION_FACTORY,
+    ADAMANT_ENTITY_CLASS,
+    ADAMANT_ENTITY_METADATA,
     ADAMANT_EQUAL_CHECKER,
     ADAMANT_ID,
     AdamantId,
     ConnectionFactory
 } from './injector-tokens';
-
-
-
-export function adamantIdFactory() : AdamantId {
-    return {
-        head(name : string) {
-            return `${name}_0`
-        },
-        tail(name : string) {
-            return `${name}_9`
-        },
-        build(name : string, type : typeof String | typeof Number, id : string|number) : string {
-            if(type === String) {
-                return `${name}_2_${id}`;
-            } else if(type === Number) {
-                const idStr = id.toString();
-                return `${name}_1_${'0'.repeat(16 - idStr.length)}${idStr}`;
-            }
-            throw new Error(`Invalid id type "${type}"`);
-        },
-        parse(id : string) : { name: string, type: typeof String | typeof Number, id : string | number } {
-            const match = /^(.*)_(1|2)_(.*)$/.exec(id);
-            
-            if(!match) {
-                throw new TypeError(`Invalid id "${id}"`);
-            }
-            
-            return {
-                name: match[1]!,
-                type: match[2] === '2' ? String : Number,
-                id: match[2] === '2' ? match[3] : Number.parseInt(match[3], 10)
-            };
-        }
-    }
-}
+import { adamantIdFactory, equalCheckerFactory } from './factories';
 
 
 export function createAdamantConnection(factory : ConnectionFactory) : AdamantConnectionManager {

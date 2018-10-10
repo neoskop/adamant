@@ -34,10 +34,12 @@ export class HydratorImpl extends Hydrator {
         
         for(const [ property, annotation ] of metadata.properties) {
             const value : any = entity[ property as keyof T ];
+            /* instanbul ignore else */
             if(annotation instanceof RelationMetadata) {
                 if(value != null) {
                     const relationMetadata = this.connectionManager.getMetadata(annotation.type);
                     
+                    /* istanbul ignore else */
                     if(annotation instanceof BelongsToMetadata) {
                         doc[ property ] = relationToId(value, relationMetadata, this.id);
                     } else if(annotation instanceof HasManyMetadata) {
@@ -86,10 +88,12 @@ export class HydratorImpl extends Hydrator {
             if(null == value) {
                 entity[ property as keyof T ] = null!;
             } else {
+                /* istanbul ignore else */
                 if(annotation instanceof RelationMetadata) {
                     const relationMetadata = this.connectionManager.getMetadata(annotation.type);
                     const relationRepository = this.connectionManager.getRepository(annotation.type);
-                    
+    
+                    /* istanbul ignore else */
                     if(annotation instanceof BelongsToMetadata) {
                         entity[ property as keyof T ] = circularCache.hasOwnProperty(value) ? circularCache[value] : await relationRepository
                             ._read(value, {

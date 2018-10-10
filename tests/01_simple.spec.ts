@@ -45,6 +45,19 @@ describe('Simple CRUD', () => {
         expect(entity.property).to.be.equal('propB');
     });
     
+    it('should throw on missing entity', async () => {
+        return expect(repository.read('z')).to.eventually.rejectedWith('missing');
+    });
+    
+    it('should cache open connections', () => {
+        expect(connection.getOpenConnections()).to.be.an('array').with.length(1);
+    });
+    
+    it('should clear cached connections', () => {
+        connection.clearConnections();
+        expect(connection.getOpenConnections()).to.be.an('array').with.length(0);
+    });
+    
     it('should read all entities', async () => {
         const entities = await repository.readAll();
         
