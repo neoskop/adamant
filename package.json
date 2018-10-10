@@ -46,6 +46,7 @@
     "pouchdb-find": "7.0.0",
     "pouchdb-replication": "7.0.0",
     "pouchdb-upsert": "2.2.0",
+    "publish-please": "4.0.0",
     "reflect-metadata": "0.1.12",
     "rxjs": "6.3.3",
     "sinon": "6.3.5",
