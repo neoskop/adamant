@@ -1,7 +1,7 @@
 # @neoskop/adamant
 
 > PouchDB ORM written in pure Typescript  
-> **adamant**: *too hard to cut, break, or pierce.*
+> ***adamant***: *too hard to cut, break, or pierce.*
 
 ## Features
 

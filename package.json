@@ -12,7 +12,7 @@
     "coverage": "nyc -e '.ts' -r html -r text npm test",
     "prebuild": "npm run coverage",
     "build": "ng-packagr -p src/package.json",
-    "postbuild": "node bin/dist-version.js",
+    "postbuild": "node bin/postbuild.js",
     "publish-please": "publish-please",
     "prepublishOnly": "publish-please guard"
   },
