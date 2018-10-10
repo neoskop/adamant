@@ -38,18 +38,16 @@ describe('Bulk', () => {
     });
     
     it('should create in bulk', async () => {
-        const d = new TestEntity();
-        d.id = 'd';
-        const e = new TestEntity();
-        e.id = 'e';
+        const d = repository.build({ id: 'd' });
+        const e = repository.build({ id: 'e' });
         
         await repository.bulk.create([ d, e ]);
         
-        expect((d as any)._id).to.be.equal('test_2_d');
-        expect((d as any)._rev).to.match(/^1-[a-z0-9]{32}$/);
+        expect(d._id).to.be.equal('test_2_d');
+        expect(d._rev).to.match(/^1-[a-z0-9]{32}$/);
         
-        expect((e as any)._id).to.be.equal('test_2_e');
-        expect((e as any)._rev).to.match(/^1-[a-z0-9]{32}$/);
+        expect(e._id).to.be.equal('test_2_e');
+        expect(e._rev).to.match(/^1-[a-z0-9]{32}$/);
     });
     
     it('should update in bulk in bulk', async () => {
@@ -59,16 +57,16 @@ describe('Bulk', () => {
         
         await repository.bulk.update([ a, b ]);
     
-        expect((a as any)._id).to.be.equal('test_2_a');
-        expect((a as any)._rev).to.match(/^2-[a-z0-9]{32}$/);
+        expect(a._id).to.be.equal('test_2_a');
+        expect(a._rev).to.match(/^2-[a-z0-9]{32}$/);
     
-        expect((b as any)._id).to.be.equal('test_2_b');
-        expect((b as any)._rev).to.match(/^2-[a-z0-9]{32}$/);
+        expect(b._id).to.be.equal('test_2_b');
+        expect(b._rev).to.match(/^2-[a-z0-9]{32}$/);
         
         const entities = await repository.readAll();
-        expect((entities[0] as any)._rev).to.match(/^2-[a-z0-9]{32}$/);
-        expect((entities[1] as any)._rev).to.match(/^2-[a-z0-9]{32}$/);
-        expect((entities[2] as any)._rev).to.match(/^1-[a-z0-9]{32}$/);
+        expect(entities[0]._rev).to.match(/^2-[a-z0-9]{32}$/);
+        expect(entities[1]._rev).to.match(/^2-[a-z0-9]{32}$/);
+        expect(entities[2]._rev).to.match(/^1-[a-z0-9]{32}$/);
     });
     
     it('should delete in bulk in bulk', async () => {
@@ -76,16 +74,16 @@ describe('Bulk', () => {
         
         await repository.bulk.delete([ a, b ]);
     
-        expect((a as any)._id).to.be.equal('test_2_a');
-        expect((a as any)._rev).to.match(/^2-[a-z0-9]{32}$/);
+        expect(a._id).to.be.equal('test_2_a');
+        expect(a._rev).to.match(/^2-[a-z0-9]{32}$/);
         expect((a as any)._deleted).to.be.true;
     
-        expect((b as any)._id).to.be.equal('test_2_b');
-        expect((b as any)._rev).to.match(/^2-[a-z0-9]{32}$/);
+        expect(b._id).to.be.equal('test_2_b');
+        expect(b._rev).to.match(/^2-[a-z0-9]{32}$/);
         expect((b as any)._deleted).to.be.true;
         
         const entities = await repository.readAll();
         expect(entities).to.have.length(1);
-        expect((entities[0] as any)._rev).to.match(/^1-[a-z0-9]{32}$/);
+        expect(entities[0]._rev).to.match(/^1-[a-z0-9]{32}$/);
     });
 });

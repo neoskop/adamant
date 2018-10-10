@@ -63,13 +63,12 @@ describe('Simple CRUD', () => {
     });
     
     it('should create an entity', async () => {
-        const entity = new TestEntity();
-        entity.id = 'd';
+        const entity = repository.build({ id: 'd' });
         
         await repository.create(entity);
         
-        expect((entity as any)._id).to.be.equal('test_2_d');
-        expect((entity as any)._rev).to.match(/^1-[a-z0-9]{32}$/);
+        expect(entity._id).to.be.equal('test_2_d');
+        expect(entity._rev).to.match(/^1-[a-z0-9]{32}$/);
     });
     
     it('should throw on duplicate id', () => {
@@ -85,8 +84,8 @@ describe('Simple CRUD', () => {
         
         await repository.update(entity);
     
-        expect((entity as any)._id).to.be.equal('test_2_c');
-        expect((entity as any)._rev).to.match(/^2-[a-z0-9]{32}$/);
+        expect(entity._id).to.be.equal('test_2_c');
+        expect(entity._rev).to.match(/^2-[a-z0-9]{32}$/);
         
         expect((await repository.read('c')).property).to.be.equal('propC');
     });
@@ -96,8 +95,8 @@ describe('Simple CRUD', () => {
         
         await repository.update(entity);
     
-        expect((entity as any)._id).to.be.equal('test_2_c');
-        expect((entity as any)._rev).to.match(/^2-[a-z0-9]{32}$/);
+        expect(entity._id).to.be.equal('test_2_c');
+        expect(entity._rev).to.match(/^2-[a-z0-9]{32}$/);
         
         expect((await repository.read('c')).property).to.be.null;
     });
@@ -108,8 +107,8 @@ describe('Simple CRUD', () => {
         
         await repository.upsert(entity);
         
-        expect((entity as any)._id).to.be.equal('test_2_c');
-        expect((entity as any)._rev).to.match(/^2-[a-z0-9]{32}$/);
+        expect(entity._id).to.be.equal('test_2_c');
+        expect(entity._rev).to.match(/^2-[a-z0-9]{32}$/);
         
         expect((await repository.read('c')).property).to.be.equal('propC');
     });
@@ -119,8 +118,8 @@ describe('Simple CRUD', () => {
         
         await repository.upsert(entity);
         
-        expect((entity as any)._id).to.be.equal('test_2_c');
-        expect((entity as any)._rev).to.match(/^1-[a-z0-9]{32}$/);
+        expect(entity._id).to.be.equal('test_2_c');
+        expect(entity._rev).to.match(/^1-[a-z0-9]{32}$/);
         
         expect((await repository.read('c')).property).to.be.null;
     });
@@ -130,9 +129,9 @@ describe('Simple CRUD', () => {
         
         await repository.delete(entity);
     
-        expect((entity as any)._id).to.be.equal('test_2_c');
+        expect(entity._id).to.be.equal('test_2_c');
         expect((entity as any)._deleted).to.be.true;
-        expect((entity as any)._rev).to.match(/^2-[a-z0-9]{32}$/);
+        expect(entity._rev).to.match(/^2-[a-z0-9]{32}$/);
         
         expect(repository.read('c')).to.eventually.rejectedWith('missing');
     });

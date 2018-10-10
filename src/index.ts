@@ -17,6 +17,7 @@ export * from './connection-manager';
 export * from './hydrator';
 export * from './hydrator-impl';
 export * from './injector-tokens';
+export * from './meta-interfaces';
 export * from './metadata';
 export * from './query-builder';
 export * from './repository';

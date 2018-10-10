@@ -12,6 +12,7 @@ import { BelongsToMetadata } from './annotations/belongs-to';
 import { IdMetadata } from './annotations/id';
 import { Inject, Injectable } from '@angular/core';
 import { ADAMANT_ID, AdamantId } from './injector-tokens';
+import { AdamantEntityMeta, AdamantRevMeta } from './meta-interfaces';
 
 @Injectable()
 export class HydratorImpl extends Hydrator {
@@ -20,15 +21,15 @@ export class HydratorImpl extends Hydrator {
         super();
     }
     
-    dehydrate<T>(entity : T, metadata : Metadata<T>, options? : { includeRev? : boolean }) : PouchDB.Core.Document<T> & Partial<PouchDB.Core.RevisionIdMeta> {
+    dehydrate<T>(entity : T & AdamantEntityMeta, metadata : Metadata<T>, options? : { includeRev? : boolean }) : PouchDB.Core.Document<T> & Partial<PouchDB.Core.RevisionIdMeta> {
         const doc : any = {};
         
         if(options && options.includeRev) {
-            doc._rev = (entity as any)._rev;
+            doc._rev = entity._rev;
         }
         
-        if(metadata.attachments && (entity as any)._attachments) {
-            doc._attachments = (entity as any)._attachments;
+        if(metadata.attachments && entity._attachments) {
+            doc._attachments = entity._attachments;
         }
         
         for(const [ property, annotation ] of metadata.properties) {
@@ -67,7 +68,7 @@ export class HydratorImpl extends Hydrator {
         return doc as PouchDB.Core.Document<T> & Partial<PouchDB.Core.RevisionIdMeta>;
     }
     
-    async hydrate<T extends {}>(entity : T, data : PouchDB.Core.Document<T> & PouchDB.Core.GetMeta, metadata : Metadata<T>, { depth = Infinity, circularCache = {} } : HydrateOptions = {}) : Promise<T> {
+    async hydrate<T extends {}>(entity : T, data : PouchDB.Core.Document<T> & PouchDB.Core.GetMeta, metadata : Metadata<T>, { depth = Infinity, circularCache = {} } : HydrateOptions = {}) : Promise<T & AdamantRevMeta> {
         if(data._id in circularCache) {
             return circularCache[ data._id ];
         }
@@ -121,7 +122,7 @@ export class HydratorImpl extends Hydrator {
             }
         }
         
-        return entity;
+        return entity as T & AdamantRevMeta;
     }
 }
 

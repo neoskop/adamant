@@ -5,6 +5,7 @@ import { ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA } fro
 import { Inject } from '@angular/core';
 import { markDeleted, markIdRev } from './utils/marks';
 import { Metadata } from './metadata';
+import { AdamantDeletedMeta, AdamantRevMeta } from './meta-interfaces';
 
 export enum BulkOperation {
     Create = 'create',
@@ -20,9 +21,9 @@ export class Bulk<T> {
                 protected readonly hydrator : Hydrator,
                 protected readonly validator : Validator) {}
     
-    protected async bulk(entities : T[], operation : BulkOperation) : Promise<T[]> {
+    protected async bulk(entities : T[], operation : BulkOperation) : Promise<(T & AdamantRevMeta & AdamantDeletedMeta)[]> {
         if(0 === entities.length) {
-            return entities;
+            return entities as (T & AdamantRevMeta & AdamantDeletedMeta)[];
         }
         
         const docs = await Promise.all(entities.map(async entity => {
@@ -53,18 +54,18 @@ export class Bulk<T> {
             markIdRev(entities[index], res);
         });
         
-        return entities;
+        return entities as (T & AdamantRevMeta & AdamantDeletedMeta)[];
     }
     
-    create(entities : T[]) : Promise<T[]> {
+    create(entities : T[]) : Promise<(T & AdamantRevMeta)[]> {
         return this.bulk(entities, BulkOperation.Create);
     }
     
-    update(entities : T[]) : Promise<T[]> {
+    update(entities : T[]) : Promise<(T & AdamantRevMeta)[]> {
         return this.bulk(entities, BulkOperation.Update);
     }
     
-    delete(entities : T[]) : Promise<T[]> {
+    delete(entities : T[]) : Promise<(T & AdamantRevMeta & AdamantDeletedMeta)[]> {
         return this.bulk(entities, BulkOperation.Delete);
     }
 }

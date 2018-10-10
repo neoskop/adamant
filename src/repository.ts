@@ -21,6 +21,7 @@ import {
     AdamantId,
     EqualChecker
 } from './injector-tokens';
+import { AdamantDeletedMeta, AdamantEntityMeta, AdamantRevMeta } from './meta-interfaces';
 
 
 export function equalCheckerFactory() {
@@ -42,7 +43,7 @@ export class AdamantRepository<T> {
                 public readonly validator : Validator) {
     }
     
-    async create(entity : T) : Promise<T> {
+    async create(entity : T) : Promise<T & AdamantRevMeta> {
         await this.validator.validate(entity, this.metadata);
         
         const doc = this.hydrator.dehydrate(entity, this.metadata);
@@ -51,10 +52,10 @@ export class AdamantRepository<T> {
         
         markIdRev(entity, result);
         
-        return entity;
+        return entity as T & AdamantRevMeta;
     }
     
-    async upsert(entity : T) : Promise<T> {
+    async upsert(entity : T) : Promise<T & AdamantRevMeta> {
         await this.validator.validate(entity, this.metadata);
         
         const doc = this.hydrator.dehydrate(entity, this.metadata);
@@ -63,7 +64,7 @@ export class AdamantRepository<T> {
         
         markIdRev(entity, result);
         
-        return entity;
+        return entity as T & AdamantRevMeta;
     }
     
     /** @internal */
@@ -80,7 +81,7 @@ export class AdamantRepository<T> {
         })
     }
     
-    async update(entity : T) : Promise<T> {
+    async update(entity : T) : Promise<T & AdamantRevMeta> {
         await this.validator.validate(entity, this.metadata);
         
         const doc = this.hydrator.dehydrate(entity, this.metadata, { includeRev: true });
@@ -89,10 +90,10 @@ export class AdamantRepository<T> {
         
         markIdRev(entity, result);
         
-        return entity;
+        return entity as T & AdamantRevMeta;
     }
     
-    async delete(entity : T) : Promise<T> {
+    async delete(entity : T) : Promise<T & AdamantRevMeta & AdamantDeletedMeta> {
         await this.validator.validate(entity, this.metadata);
         
         const doc : PouchDB.Core.Document<T> & Partial<PouchDB.Core.RevisionIdMeta> & PouchDB.Core.ChangesMeta = this.hydrator.dehydrate(entity, this.metadata, { includeRev: true });
@@ -104,15 +105,15 @@ export class AdamantRepository<T> {
         markIdRev(entity, result);
         markDeleted(entity);
         
-        return entity;
+        return entity as T & AdamantRevMeta & AdamantDeletedMeta;
     }
     
-    read(id : number | string, options? : HydrateOptions) {
+    read(id : number | string, options? : HydrateOptions) : Promise<T & AdamantRevMeta> {
         return this._read(this.id.build(this.metadata.name!, this.metadata.idType, id), options);
     }
     
     /** @internal */
-    async _read(id : string, options? : HydrateOptions) {
+    async _read(id : string, options? : HydrateOptions) : Promise<T & AdamantRevMeta> {
         return this.hydrator.hydrate(Object.create(this.entityClass.prototype), await this._readRaw(id), this.metadata, options);
     }
     
@@ -132,7 +133,7 @@ export class AdamantRepository<T> {
         return result[ 0 ];
     }
     
-    async readAll(ids? : (string | number)[], options? : HydrateOptions) {
+    async readAll(ids? : (string | number)[], options? : HydrateOptions) : Promise<(T & AdamantRevMeta)[]> {
         const opt : PouchDB.Core.AllDocsWithKeysOptions & PouchDB.Core.AllDocsWithinRangeOptions = {
             include_docs: true
         } as any;
@@ -148,7 +149,7 @@ export class AdamantRepository<T> {
     }
     
     /** @internal */
-    async _readAll(opt : PouchDB.Core.AllDocsWithKeysOptions | PouchDB.Core.AllDocsWithinRangeOptions, options? : HydrateOptions) {
+    async _readAll(opt : PouchDB.Core.AllDocsWithKeysOptions | PouchDB.Core.AllDocsWithinRangeOptions, options? : HydrateOptions) : Promise<(T & AdamantRevMeta)[]> {
         return await Promise.all((await this._readAllRaw(opt))
             .map(async doc => this.hydrator.hydrate(Object.create(this.entityClass.prototype), doc, this.metadata, options))
         )
@@ -167,13 +168,13 @@ export class AdamantRepository<T> {
         return new QueryBuilder<T>(this, this.id.head(this.metadata.name!), this.id.tail(this.metadata.name!));
     }
     
-    async executeQuery(query : QueryBuilder<T>, options? : HydrateOptions) {
+    async executeQuery(query : QueryBuilder<T>, options? : HydrateOptions) : Promise<(T & AdamantRevMeta)[]> {
         return await Promise.all((await this.db.find(query.toFindRequest())).docs
             .map(async doc => this.hydrator.hydrate(Object.create(this.entityClass.prototype), doc, this.metadata, options))
         )
     }
     
-    build(props : Partial<T> = {}) : T {
+    build(props : Partial<T> = {}) : T & AdamantEntityMeta {
         return populate(Object.create(this.entityClass.prototype), props);
     }
     
@@ -236,7 +237,7 @@ export class AdamantRepository<T> {
         });
     }
     
-    async view<T, P extends keyof T>(designDoc : Ctor<T>, name : P, { depth, circularCache, ...options } : HydrateOptions & PouchDB.Query.Options<T, any> = {}) {
+    async view<T, P extends keyof T>(designDoc : Ctor<T>, name : P, { depth, circularCache, ...options } : HydrateOptions & PouchDB.Query.Options<T, any> = {}) : Promise<(T & AdamantRevMeta)[]> {
         const classAnnotation = getClassMetadata(designDoc, DesignDocMetadata)[ 0 ];
         
         if(!classAnnotation) {
@@ -267,7 +268,7 @@ export class AdamantRepository<T> {
         )
     }
     
-    rawView<R = T>(name : string, options? : PouchDB.Query.Options<R, any>) {
+    rawView<R = T>(name : string, options? : PouchDB.Query.Options<T, R>) : Promise<PouchDB.Query.Response<R>> {
         return this.db.query(name, options);
     }
 }
