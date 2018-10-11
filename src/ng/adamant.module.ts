@@ -1,14 +1,20 @@
-import { InjectionToken, Injector, ModuleWithProviders, NgModule, Type } from '@angular/core';
+import { Inject, Injector, ModuleWithProviders, NgModule, Type } from '@angular/core';
 import {
     ADAMANT_CONNECTION_FACTORY,
     ADAMANT_EQUAL_CHECKER,
     ADAMANT_ID,
+    ADAMANT_INJECTOR,
+    ADAMANT_INJECTOR_FACTORY,
     AdamantConnectionManager,
     adamantIdFactory,
     ConnectionFactory,
+    createAngularInjector,
     equalCheckerFactory,
-    ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY, createAngularInjector, HydratorImpl, ValidatorImpl
+    HydratorImpl,
+    ValidatorImpl
 } from '@neoskop/adamant';
+import { AdamantInitializationService } from './adamant-initialization.service';
+import { ADAMANT_DESIGN_DOCS, ADAMANT_ENTITIES, ADAMANT_INIT_ON_STARTUP } from './injector-tokens';
 
 export interface AdamantModuleFeatureConfiguration {
     entities : Type<any>[];
@@ -16,11 +22,11 @@ export interface AdamantModuleFeatureConfiguration {
 }
 
 export interface AdamantModuleRootConfiguration extends AdamantModuleFeatureConfiguration {
+    initOnStartup?: boolean;
     factory : ConnectionFactory
 }
 
-export const ADAMANT_ENTITIES = new InjectionToken<Type<any>[][]>('ADAMANT_ENTITIES');
-export const ADAMANT_DESIGN_DOCS = new InjectionToken<any[][]>('ADAMANT_DESIGN_DOCS');
+
 
 /** @internal */
 export function designDocFactory(...designDocs : any[]) {
@@ -29,7 +35,7 @@ export function designDocFactory(...designDocs : any[]) {
 
 @NgModule()
 export class AdamantModule {
-    static forRoot({ factory, entities, designDocs = [] } : AdamantModuleRootConfiguration) : ModuleWithProviders {
+    static forRoot({ initOnStartup = true, factory, entities, designDocs = [] } : AdamantModuleRootConfiguration) : ModuleWithProviders {
         return {
             ngModule : AdamantModule,
             providers: [
@@ -43,7 +49,9 @@ export class AdamantModule {
                 { provide: HydratorImpl, useClass: HydratorImpl, deps: [ ADAMANT_ID, AdamantConnectionManager] },
                 { provide: ValidatorImpl, useClass: ValidatorImpl, deps: [] },
                 { provide: ADAMANT_INJECTOR, useExisting: Injector },
-                { provide: ADAMANT_INJECTOR_FACTORY, useValue: createAngularInjector }
+                { provide: ADAMANT_INJECTOR_FACTORY, useValue: createAngularInjector },
+                { provide: ADAMANT_INIT_ON_STARTUP, useValue: initOnStartup },
+                { provide: AdamantInitializationService, useClass: AdamantInitializationService, deps: [ ADAMANT_DESIGN_DOCS, AdamantConnectionManager ] }
             ]
         }
     }
@@ -56,6 +64,13 @@ export class AdamantModule {
                 { provide: ADAMANT_ENTITIES, useValue: entities, multi: true },
                 { provide: ADAMANT_DESIGN_DOCS, useFactory: designDocFactory, deps: designDocs, multi: true },
             ]
+        }
+    }
+    
+    constructor(initService : AdamantInitializationService,
+                @Inject(ADAMANT_INIT_ON_STARTUP) initOnStartup : boolean) {
+        if(initOnStartup) {
+            Promise.resolve().then(() => initService.initialize()).catch(err => console.error(err));
         }
     }
 }

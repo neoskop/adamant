@@ -1,11 +1,15 @@
 import 'mocha';
 import './test-init';
 import { inject, TestBed } from '@angular/core/testing';
-import { ADAMANT_DESIGN_DOCS, ADAMANT_ENTITIES, AdamantModule } from './adamant.module';
+import { AdamantModule } from './adamant.module';
 import { expect } from 'chai';
 import { AdamantConnectionManager, AdamantRepository, DesignDoc, Entity, Id, View } from '@neoskop/adamant';
 import { MemoryPouchDB } from '../../tests/pouchdb'
 import { Type } from '@angular/core';
+import { AdamantInitializationEnd, AdamantInitializationService } from './adamant-initialization.service';
+import { filter, first } from 'rxjs/operators';
+import { SinonSpy, spy } from 'sinon';
+import { ADAMANT_DESIGN_DOCS, ADAMANT_ENTITIES } from './injector-tokens';
 
 @Entity('test')
 export class TestEntity {
@@ -36,6 +40,10 @@ export function pouchdbFactory(name : string) {
 }
 
 describe('AdamantModule', () => {
+    let testUpsertSpy : SinonSpy;
+    let test2UpsertSpy : SinonSpy;
+    let testQuerySpy : SinonSpy;
+    let test2QuerySpy : SinonSpy;
     describe('forRoot', () => {
         beforeEach(() => {
             TestBed.configureTestingModule({
@@ -47,6 +55,9 @@ describe('AdamantModule', () => {
                     })
                 ]
             }).compileComponents();
+            
+            testUpsertSpy = spy(TestBed.get(AdamantConnectionManager).getRepository(TestEntity).db, 'upsert');
+            testQuerySpy = spy(TestBed.get(AdamantConnectionManager).getRepository(TestEntity).db, 'query');
         });
     
         it('should create', () => {
@@ -70,6 +81,16 @@ describe('AdamantModule', () => {
             expect(designDocs[ 0 ]).to.be.an('array').with.length(1);
             expect(designDocs[ 0 ][ 0 ]).to.be.instanceOf(TestDesignDoc);
         }));
+        
+        it('should init design docs', inject([ AdamantInitializationService ], async (initService : AdamantInitializationService) => {
+            await initService.events.pipe(filter(e => e instanceof AdamantInitializationEnd), first()).toPromise();
+            
+            expect(testUpsertSpy).to.have.been.calledOnce;
+            expect(testUpsertSpy).to.have.been.calledWith('_design/test');
+            
+            expect(testQuerySpy).to.have.been.calledOnce;
+            expect(testQuerySpy).to.have.been.calledWith('test/byId');
+        }))
     });
     
     describe('forFeature', () => {
@@ -87,6 +108,12 @@ describe('AdamantModule', () => {
                     })
                 ]
             }).compileComponents();
+            
+            testUpsertSpy = spy(TestBed.get(AdamantConnectionManager).getRepository(TestEntity).db, 'upsert');
+            testQuerySpy = spy(TestBed.get(AdamantConnectionManager).getRepository(TestEntity).db, 'query');
+    
+            test2UpsertSpy = spy(TestBed.get(AdamantConnectionManager).getRepository(Test2Entity).db, 'upsert');
+            test2QuerySpy = spy(TestBed.get(AdamantConnectionManager).getRepository(Test2Entity).db, 'query');
         });
         
         it('should create', () => {
@@ -111,5 +138,21 @@ describe('AdamantModule', () => {
             expect(designDocs[ 1 ]).to.be.an('array').with.length(1);
             expect(designDocs[ 1 ][ 0 ]).to.be.instanceOf(Test2DesignDoc);
         }));
+    
+        it('should init design docs', inject([ AdamantInitializationService ], async (initService : AdamantInitializationService) => {
+            await initService.events.pipe(filter(e => e instanceof AdamantInitializationEnd), first()).toPromise();
+        
+            expect(testUpsertSpy).to.have.been.calledOnce;
+            expect(testUpsertSpy).to.have.been.calledWith('_design/test');
+        
+            expect(testQuerySpy).to.have.been.calledOnce;
+            expect(testQuerySpy).to.have.been.calledWith('test/byId');
+            
+            expect(test2UpsertSpy).to.have.been.calledOnce;
+            expect(test2UpsertSpy).to.have.been.calledWith('_design/test2');
+        
+            expect(test2QuerySpy).to.have.been.calledOnce;
+            expect(test2QuerySpy).to.have.been.calledWith('test2/byId');
+        }))
     });
 });
