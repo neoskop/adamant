@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { PropertyMetadata, Type } from './property';
 
 export enum IdStrategy {
-    Static = 'static',
+    Static = 'static'
     // Uuid = 'uuid',
     // Increment = 'increment'
 }
@@ -13,12 +13,16 @@ export class IdMetadata extends PropertyMetadata {
     readonly required = true;
 }
 
-export function Id(options: { strategy?: IdStrategy, type?: Type } = {}) : PropertyDecorator {
+export function Id(options: { strategy?: IdStrategy; type?: Type } = {}): PropertyDecorator {
     return (target: Object, property: string | symbol) => {
-        pushPropertyMetadata(target.constructor, property, populate(new IdMetadata(), {
-            strategy: IdStrategy.Static,
-            type: Reflect.getMetadata('design:type', target, property),
-            ...options
-        }))
-    }
+        pushPropertyMetadata(
+            target.constructor,
+            property,
+            populate(new IdMetadata(), {
+                strategy: IdStrategy.Static,
+                type: Reflect.getMetadata('design:type', target, property),
+                ...options
+            })
+        );
+    };
 }

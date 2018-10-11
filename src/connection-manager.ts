@@ -19,8 +19,7 @@ import {
 import { adamantIdFactory, equalCheckerFactory } from './factories';
 import { ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY, AdamantInjector, createInjector } from './injector';
 
-
-export function createAdamantConnection(factory : ConnectionFactory) : AdamantConnectionManager {
+export function createAdamantConnection(factory: ConnectionFactory): AdamantConnectionManager {
     const injector = createInjector({
         providers: [
             { provide: ADAMANT_CONNECTION_FACTORY, useValue: factory },
@@ -36,54 +35,55 @@ export function createAdamantConnection(factory : ConnectionFactory) : AdamantCo
 }
 
 export class AdamantConnectionManager {
-    
     protected readonly connections = new Map<string, PouchDB.Database<any>>();
     protected readonly repositories = new Map<Ctor<any>, AdamantRepository<any>>();
     protected readonly metadata = new Map<Ctor<any>, Metadata<any>>();
-    
-    constructor(protected readonly connectionFactory : ConnectionFactory,
-                public readonly id : AdamantId,
-                protected readonly injector : AdamantInjector,
-                protected readonly injectorFactory : Function) {}
-    
-    getOpenConnections() : PouchDB.Database[] {
+
+    constructor(
+        protected readonly connectionFactory: ConnectionFactory,
+        public readonly id: AdamantId,
+        protected readonly injector: AdamantInjector,
+        protected readonly injectorFactory: Function
+    ) {}
+
+    getOpenConnections(): PouchDB.Database[] {
         return Array.from(this.connections.values());
     }
-    
-    getConnection<T extends {} = {}>(name : string) : PouchDB.Database<T> {
-        if(!this.connections.has(name)) {
+
+    getConnection<T extends {} = {}>(name: string): PouchDB.Database<T> {
+        if (!this.connections.has(name)) {
             this.connections.set(name, this.createConnection(name));
         }
-        
+
         return this.connections.get(name)!;
     }
-    
+
     clearConnections() {
         this.connections.clear();
     }
-    
-    protected createConnection(name : string) : PouchDB.Database {
+
+    protected createConnection(name: string): PouchDB.Database {
         return this.connectionFactory(name);
     }
-    
-    getRepository<T>(entityClass : Ctor<T>) : AdamantRepository<T> {
-        if(!this.repositories.has(entityClass)) {
+
+    getRepository<T>(entityClass: Ctor<T>): AdamantRepository<T> {
+        if (!this.repositories.has(entityClass)) {
             this.repositories.set(entityClass, this.createRepository(entityClass));
         }
-        
+
         return this.repositories.get(entityClass)!;
     }
-    
-    protected createRepository<T>(entityClass : Ctor<T>) : AdamantRepository<T> {
+
+    protected createRepository<T>(entityClass: Ctor<T>): AdamantRepository<T> {
         const metadata = this.getMetadata(entityClass);
-        
+
         return this.injectorFactory({
             parent: this.injector,
             providers: [
                 { provide: AdamantConnectionManager, useValue: this },
                 ADAMANT_REPOSITORY_PROVIDER,
                 { provide: ADAMANT_ENTITY_CLASS, useValue: entityClass },
-                { provide: ADAMANT_ENTITY_METADATA, useValue: metadata, },
+                { provide: ADAMANT_ENTITY_METADATA, useValue: metadata },
                 { provide: ADAMANT_CONNECTION, useValue: !metadata.inline ? this.getConnection(metadata.name!) : null },
                 { provide: Hydrator, useExisting: metadata.hydrator || HydratorImpl },
                 { provide: Validator, useExisting: metadata.validator || ValidatorImpl },
@@ -91,27 +91,24 @@ export class AdamantConnectionManager {
             ]
         }).get(AdamantRepository) as AdamantRepository<T>;
     }
-    
-    getMetadata<T>(entityClass : Ctor<T>) : Metadata<T> {
-        if(!this.metadata.has(entityClass)) {
+
+    getMetadata<T>(entityClass: Ctor<T>): Metadata<T> {
+        if (!this.metadata.has(entityClass)) {
             this.metadata.set(entityClass, this.createMetadata(entityClass));
         }
-        
+
         return this.metadata.get(entityClass)!;
     }
-    
-    protected createMetadata<T>(entityClass : Ctor<T>) : Metadata<T> {
+
+    protected createMetadata<T>(entityClass: Ctor<T>): Metadata<T> {
         return new Metadata<T>(entityClass);
     }
 }
 
 export const ADAMANT_CONNECTION_MANAGER_PROVIDER = {
     provide: AdamantConnectionManager,
-    useFactory(connectionFactory : ConnectionFactory,
-               id : AdamantId,
-               injector : AdamantInjector,
-               injectorFactory : Function) {
+    useFactory(connectionFactory: ConnectionFactory, id: AdamantId, injector: AdamantInjector, injectorFactory: Function) {
         return new AdamantConnectionManager(connectionFactory, id, injector, injectorFactory);
     },
-    deps: [ ADAMANT_CONNECTION_FACTORY, ADAMANT_ID, ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY ]
+    deps: [ADAMANT_CONNECTION_FACTORY, ADAMANT_ID, ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY]
 };

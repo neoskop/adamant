@@ -16,39 +16,42 @@ export class Metadata<T> {
     readonly attachments?: boolean;
     readonly hydrator!: Ctor<Hydrator>;
     readonly validator!: Ctor<Validator>;
-    
-    readonly id! : keyof T;
+
+    readonly id!: keyof T;
     readonly idType!: typeof String | typeof Number;
-    readonly idStrategy! : IdStrategy;
-    
-    readonly properties = new Map<string | symbol, PropertyMetadata|IdMetadata|BelongsToMetadata<any>|HasManyMetadata<any>|HasManyMapMetadata<any>|InlineMetadata<any>>();
+    readonly idStrategy!: IdStrategy;
+
+    readonly properties = new Map<
+        string | symbol,
+        PropertyMetadata | IdMetadata | BelongsToMetadata<any> | HasManyMetadata<any> | HasManyMapMetadata<any> | InlineMetadata<any>
+    >();
     // readonly belongsTo = new Map<string | symbol, BelongsToMetadata<any>>();
     // readonly hasMany = new Map<string | symbol, HasManyMetadata<any>>();
     // readonly hasManyMap = new Map<string | symbol, HasManyMapMetadata<any>>();
-    
-    constructor(protected readonly entity : Ctor<T>) {
+
+    constructor(protected readonly entity: Ctor<T>) {
         this.parse();
         this.assert();
     }
-    
+
     protected parse() {
         const classMetadata = getClassMetadata<EntityMetadata | InlineEntityMetadata>(this.entity);
         const propertyMetadata = getAllPropertyMetadata<IdMetadata>(this.entity);
-        
-        for(const annotation of classMetadata) {
-            if(annotation instanceof EntityMetadata || annotation instanceof InlineEntityMetadata) {
+
+        for (const annotation of classMetadata) {
+            if (annotation instanceof EntityMetadata || annotation instanceof InlineEntityMetadata) {
                 Object.assign(this, annotation);
             }
         }
-        
-        for(const [ property, annotations ] of propertyMetadata) {
-            for(const annotation of annotations) {
-                if(annotation instanceof IdMetadata) {
+
+        for (const [property, annotations] of propertyMetadata) {
+            for (const annotation of annotations) {
+                if (annotation instanceof IdMetadata) {
                     (this as any).id = property;
                     (this as any).idType = annotation.type;
                     (this as any).idStrategy = annotation.strategy;
                 }
-                
+
                 // if(annotation instanceof BelongsToMetadata) {
                 //     this.belongsTo.set(property, annotation);
                 // }
@@ -60,17 +63,17 @@ export class Metadata<T> {
                 // if(annotation instanceof HasManyMapMetadata) {
                 //     this.hasManyMap.set(property, annotation);
                 // }
-                
-                if(annotation instanceof PropertyMetadata) {
+
+                if (annotation instanceof PropertyMetadata) {
                     this.properties.set(property, annotation);
                 }
             }
         }
     }
-    
+
     protected assert() {
-        for(const key of ((this.inline ? [] : [ 'id', 'idStrategy', 'name', 'attachments' ]) as (keyof Metadata<T>)[])) {
-            if(null == this[key]) {
+        for (const key of (this.inline ? [] : ['id', 'idStrategy', 'name', 'attachments']) as (keyof Metadata<T>)[]) {
+            if (null == this[key]) {
                 throw new Error(`Missing metadata '${key}' for entity "${this.entity.name}"`);
             }
         }

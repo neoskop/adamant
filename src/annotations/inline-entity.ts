@@ -8,16 +8,21 @@ export class InlineEntityMetadata {
     validator?: Ctor<Validator>;
 }
 
-export function InlineEntity(options: {
-    hydrator?: Ctor<Hydrator>;
-    validator?: Ctor<Validator>;
-} = {}) : ClassDecorator {
-    return (target : Function) => {
-        pushClassMetadata(target, populate(new InlineEntityMetadata(), {
-            // hydrator: HydratorImpl,
-            // validator: ValidatorImpl,
-            ...options,
-            inline: true
-        }));
-    }
+export function InlineEntity(
+    options: {
+        hydrator?: Ctor<Hydrator>;
+        validator?: Ctor<Validator>;
+    } = {}
+): ClassDecorator {
+    return (target: Function) => {
+        pushClassMetadata(
+            target,
+            populate(new InlineEntityMetadata(), {
+                // hydrator: HydratorImpl,
+                // validator: ValidatorImpl,
+                ...options,
+                inline: true
+            })
+        );
+    };
 }

@@ -6,14 +6,17 @@ export class DesignDocMetadata<T> {
 }
 
 declare global {
-    export const emit : any;
+    export const emit: any;
 }
 
-export function DesignDoc<T>(entity : Ctor<T>, name: string) : ClassDecorator {
-    return (target : Function) => {
-        pushClassMetadata(target, populate(new DesignDocMetadata<T>(), {
-            entity,
-            name
-        }));
-    }
+export function DesignDoc<T>(entity: Ctor<T>, name: string): ClassDecorator {
+    return (target: Function) => {
+        pushClassMetadata(
+            target,
+            populate(new DesignDocMetadata<T>(), {
+                entity,
+                name
+            })
+        );
+    };
 }

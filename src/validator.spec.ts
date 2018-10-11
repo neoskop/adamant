@@ -11,37 +11,38 @@ use(require('chai-as-promised'));
 @Entity('default-entity')
 export class TestEntity {
     @Id()
-    id! : string;
-    
+    id!: string;
+
     @Property()
     optional?: string;
-    
+
     @Property({ required: true })
     required!: string;
 }
 
 describe('ValidatorImpl', () => {
-    let metadata : Metadata<TestEntity>;
-    let validator : ValidatorImpl;
-    
+    let metadata: Metadata<TestEntity>;
+    let validator: ValidatorImpl;
+
     beforeEach(() => {
         metadata = new Metadata(TestEntity);
         validator = new ValidatorImpl();
     });
-    
+
     describe('validate', () => {
         it('should return a promise', () => {
             expect(validator.validate({ id: 'id', optional: 'optional', required: 'required' }, metadata)).to.be.instanceOf(Promise);
         });
-        
+
         it('should validate valid entity', async () => {
             expect(await validator.validate({ id: 'id', optional: 'optional', required: 'required' }, metadata)).to.be.true;
         });
-        
+
         it('should throw on validation error', () => {
-            return expect(validator.validate<TestEntity>({ id: 'id' } as any, metadata)).to.be.eventually.rejectedWith(Error, 'Property "required" required');
+            return expect(validator.validate<TestEntity>({ id: 'id' } as any, metadata)).to.be.eventually.rejectedWith(
+                Error,
+                'Property "required" required'
+            );
         });
     });
-    
 });
-

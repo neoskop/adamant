@@ -6,20 +6,24 @@ export class PropertyMetadata {
     type!: Type;
     required!: boolean;
     default?: any;
-    
-    validate(value : any, key : string | symbol) {
-        if(this.required && null == value) {
+
+    validate(value: any, key: string | symbol) {
+        if (this.required && null == value) {
             throw new Error(`Property "${typeof key === 'symbol' ? Symbol.keyFor(key) : key}" required`);
         }
     }
 }
 
-export function Property(options: { type?: Type, required?: boolean, default?: any } = {}) : PropertyDecorator {
+export function Property(options: { type?: Type; required?: boolean; default?: any } = {}): PropertyDecorator {
     return (target: Object, property: string | symbol) => {
-        pushPropertyMetadata(target.constructor, property, populate(new PropertyMetadata(), {
-            type: Reflect.getMetadata('design:type', target, property),
-            required: false,
-            ...options
-        }))
-    }
+        pushPropertyMetadata(
+            target.constructor,
+            property,
+            populate(new PropertyMetadata(), {
+                type: Reflect.getMetadata('design:type', target, property),
+                required: false,
+                ...options
+            })
+        );
+    };
 }

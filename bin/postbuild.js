@@ -4,7 +4,7 @@ const fs = require('fs');
 const pkg = require(__dirname + '/../package');
 const distPkg = require(__dirname + '/../dist/package');
 
-for(const key of [ 'version', 'description', 'repository', 'author', 'license' ]) {
+for (const key of ['version', 'description', 'repository', 'author', 'license']) {
     distPkg[key] = pkg[key];
 }
 

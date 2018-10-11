@@ -2,20 +2,19 @@ import { Ctor } from './utils/metadata';
 import { InjectionToken } from './injector';
 import { Metadata } from './metadata';
 
-
 export interface EqualChecker {
-    (a : any, b : any): boolean
+    (a: any, b: any): boolean;
 }
 
 export interface ConnectionFactory<T extends {} = {}> {
-    (name : string): PouchDB.Database<T>
+    (name: string): PouchDB.Database<T>;
 }
 
 export interface AdamantId {
-    head(name : string) : string;
-    tail(name : string) : string;
-    build(name : string, type : typeof String | typeof Number, id : string|number) : string;
-    parse(id : string) : { name: string, type: typeof String | typeof Number, id : string | number };
+    head(name: string): string;
+    tail(name: string): string;
+    build(name: string, type: typeof String | typeof Number, id: string | number): string;
+    parse(id: string): { name: string; type: typeof String | typeof Number; id: string | number };
 }
 
 export const ADAMANT_CONNECTION = new InjectionToken<PouchDB.Database>('ADAMANT_CONNECTION');

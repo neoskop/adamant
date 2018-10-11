@@ -11,9 +11,7 @@ export interface AdamantDeletedMeta {
 }
 
 export interface AdamantAttachmentsMeta {
-    _attachments: PouchDB.Core.Attachments
+    _attachments: PouchDB.Core.Attachments;
 }
 
 export interface AdamantEntityMeta extends Partial<AdamantRevMeta>, Partial<AdamantDeletedMeta>, Partial<AdamantAttachmentsMeta> {}
-
-
