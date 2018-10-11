@@ -3,7 +3,7 @@
   "version": "0.1.0-rc.8",
   "description": "PouchDB ORM",
   "main": "index.js",
-  "repository": "git@bitbucket.org:neoskop/adamant.git",
+  "repository": "git@github.com:neoskop/adamant.git",
   "author": "Mark Wecke <wecke@neoskop.de>",
   "license": "MIT",
   "private": false,
