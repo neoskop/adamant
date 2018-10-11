@@ -31,11 +31,11 @@ describe('ValidatorImpl', () => {
     
     describe('validate', () => {
         it('should return a promise', () => {
-            expect(validator.validate({ id: 'id', option: 'optional', required: 'required' }, metadata)).to.be.instanceOf(Promise);
+            expect(validator.validate({ id: 'id', optional: 'optional', required: 'required' }, metadata)).to.be.instanceOf(Promise);
         });
         
         it('should validate valid entity', async () => {
-            expect(await validator.validate({ id: 'id', option: 'optional', required: 'required' }, metadata)).to.be.true;
+            expect(await validator.validate({ id: 'id', optional: 'optional', required: 'required' }, metadata)).to.be.true;
         });
         
         it('should throw on validation error', () => {
