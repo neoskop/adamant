@@ -1,5 +1,5 @@
 import { Ctor } from './utils/metadata';
-import { InjectionToken } from '@angular/core';
+import { InjectionToken } from './injector';
 import { Metadata } from './metadata';
 
 

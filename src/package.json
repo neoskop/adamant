@@ -2,7 +2,8 @@
   "name": "@neoskop/adamant",
   "peerDependencies": {
     "fast-deep-equal": ">=2.0.1",
-    "@angular/core": ">=6.0.0"
+    "@angular/core": ">=6.0.0",
+    "injection-js": ">=2.2.1"
   },
   "ngPackage": {
     "lib": {

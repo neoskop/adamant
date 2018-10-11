@@ -55,6 +55,9 @@ describe('AdamantModule', () => {
     
         it('should provide connection-manager', inject([ AdamantConnectionManager ], (connection : AdamantConnectionManager) => {
             expect(connection).to.be.instanceOf(AdamantConnectionManager);
+            expect((connection as any).connectionFactory).to.be.a('function');
+            expect((connection as any).id).to.be.an('object');
+            expect((connection as any).injector).to.be.an('object');
             expect(connection.getRepository(TestEntity)).to.be.instanceOf(AdamantRepository)
         }));
     

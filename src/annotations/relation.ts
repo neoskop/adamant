@@ -1,4 +1,4 @@
-import { resolveForwardRef } from '@angular/core';
+import { resolveForwardRef } from '../injector';
 import { Ctor } from '../utils/metadata';
 import { PropertyMetadata } from './property';
 

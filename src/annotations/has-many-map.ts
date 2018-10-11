@@ -1,6 +1,6 @@
 import { RelationMetadata } from './relation';
 import { Ctor, populate, pushPropertyMetadata } from '../utils/metadata';
-import { ForwardRefFn } from '@angular/core';
+import { ForwardRefFn } from '../injector';
 
 export class HasManyMapMetadata<T> extends RelationMetadata<T> {}
 

@@ -2,7 +2,6 @@ import { Hydrator } from './hydrator';
 import { Validator } from './validator';
 import { Ctor } from './utils/metadata';
 import { ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA } from './injector-tokens';
-import { Inject } from '@angular/core';
 import { markDeleted, markIdRev } from './utils/marks';
 import { Metadata } from './metadata';
 import { AdamantDeletedMeta, AdamantRevMeta } from './meta-interfaces';
@@ -15,9 +14,9 @@ export enum BulkOperation {
 
 export class Bulk<T> {
     
-    constructor(@Inject(ADAMANT_CONNECTION) protected readonly db : PouchDB.Database<T>,
-                @Inject(ADAMANT_ENTITY_CLASS) protected readonly entityClass : Ctor<T>,
-                @Inject(ADAMANT_ENTITY_METADATA) protected readonly metadata : Metadata<T>,
+    constructor(protected readonly db : PouchDB.Database<T>,
+                protected readonly entityClass : Ctor<T>,
+                protected readonly metadata : Metadata<T>,
                 protected readonly hydrator : Hydrator,
                 protected readonly validator : Validator) {}
     
@@ -69,3 +68,16 @@ export class Bulk<T> {
         return this.bulk(entities, BulkOperation.Delete);
     }
 }
+
+
+export const ADAMANT_BULK_PROVIDER = {
+    provide: Bulk,
+    useFactory(db : PouchDB.Database<any>,
+               entityClass : Ctor<any>,
+               metadata : Metadata<any>,
+               hydrator : Hydrator,
+               validator : Validator) {
+        return new Bulk(db, entityClass, metadata, hydrator, validator);
+    },
+    deps: [ ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA, Hydrator, Validator ]
+};

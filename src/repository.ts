@@ -1,4 +1,3 @@
-import { Inject, Injectable } from '@angular/core';
 import { Validator } from './validator';
 import { Ctor, getAllPropertyMetadata, getClassMetadata, getPropertyMetadata, populate } from './utils/metadata';
 import { HydrateOptions, Hydrator } from './hydrator';
@@ -14,25 +13,21 @@ import { ValidateDocMetadata } from './annotations/validate-doc';
 import {
     ADAMANT_CONNECTION,
     ADAMANT_ENTITY_CLASS,
-    ADAMANT_ENTITY_METADATA,
-    ADAMANT_EQUAL_CHECKER,
-    ADAMANT_ID,
+    ADAMANT_ENTITY_METADATA, ADAMANT_EQUAL_CHECKER, ADAMANT_ID,
     AdamantId,
     EqualChecker
 } from './injector-tokens';
 import { AdamantDeletedMeta, AdamantEntityMeta, AdamantRevMeta } from './meta-interfaces';
 
 
-
-@Injectable()
 export class AdamantRepository<T> {
     protected readonly queryBatcher = new ReadQueryBatcher(this.db);
     
-    constructor(@Inject(ADAMANT_CONNECTION) protected readonly db : PouchDB.Database<T>,
-                @Inject(ADAMANT_ENTITY_CLASS) protected readonly entityClass : Ctor<T>,
-                @Inject(ADAMANT_ENTITY_METADATA) protected readonly metadata : Metadata<T>,
-                @Inject(ADAMANT_EQUAL_CHECKER) protected readonly equal : EqualChecker,
-                @Inject(ADAMANT_ID) protected readonly id : AdamantId,
+    constructor(protected readonly db : PouchDB.Database<T>,
+                protected readonly entityClass : Ctor<T>,
+                protected readonly metadata : Metadata<T>,
+                protected readonly equal : EqualChecker,
+                protected readonly id : AdamantId,
                 public readonly bulk : Bulk<T>,
                 public readonly hydrator : Hydrator,
                 public readonly validator : Validator) {
@@ -266,3 +261,19 @@ export class AdamantRepository<T> {
         return this.db.query(name, options);
     }
 }
+
+
+export const ADAMANT_REPOSITORY_PROVIDER = {
+    provide: AdamantRepository,
+    useFactory(db : PouchDB.Database<any>,
+               entityClass : Ctor<any>,
+               metadata : Metadata<any>,
+               equal : EqualChecker,
+               id : AdamantId,
+               bulk : Bulk<any>,
+               hydrator : Hydrator,
+               validator : Validator) {
+        return new AdamantRepository(db, entityClass, metadata, equal, id, bulk, hydrator, validator);
+    },
+    deps: [ ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA, ADAMANT_EQUAL_CHECKER, ADAMANT_ID, Bulk, Hydrator, Validator ]
+};

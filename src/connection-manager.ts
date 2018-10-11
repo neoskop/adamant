@@ -1,12 +1,11 @@
-import { Inject, Injectable, Injector } from '@angular/core';
-import { AdamantRepository } from './repository';
+import { ADAMANT_REPOSITORY_PROVIDER, AdamantRepository } from './repository';
 import { Ctor } from './utils/metadata';
 import { Metadata } from './metadata';
-import { Bulk } from './bulk';
+import { ADAMANT_BULK_PROVIDER } from './bulk';
 import { Hydrator } from './hydrator';
 import { Validator } from './validator';
-import { HydratorImpl } from './hydrator-impl';
-import { ValidatorImpl } from './validator-impl';
+import { ADAMANT_HYDRATOR_IMPL_PROVIDER, HydratorImpl } from './hydrator-impl';
+import { ADAMANT_VALIDATOR_IMPL_PROVIDER, ValidatorImpl } from './validator-impl';
 import {
     ADAMANT_CONNECTION,
     ADAMANT_CONNECTION_FACTORY,
@@ -18,31 +17,34 @@ import {
     ConnectionFactory
 } from './injector-tokens';
 import { adamantIdFactory, equalCheckerFactory } from './factories';
+import { ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY, AdamantInjector, createInjector } from './injector';
 
 
 export function createAdamantConnection(factory : ConnectionFactory) : AdamantConnectionManager {
-    const injector = Injector.create({
+    const injector = createInjector({
         providers: [
             { provide: ADAMANT_CONNECTION_FACTORY, useValue: factory },
-            { provide: AdamantConnectionManager, deps: [ ADAMANT_CONNECTION_FACTORY, ADAMANT_ID, Injector ] },
+            ADAMANT_CONNECTION_MANAGER_PROVIDER,
             { provide: ADAMANT_ID, useFactory: adamantIdFactory, deps: [] },
-            { provide: ADAMANT_EQUAL_CHECKER, useFactory: equalCheckerFactory, deps: [] }
+            { provide: ADAMANT_EQUAL_CHECKER, useFactory: equalCheckerFactory, deps: [] },
+            ADAMANT_HYDRATOR_IMPL_PROVIDER,
+            ADAMANT_VALIDATOR_IMPL_PROVIDER
         ]
     });
 
     return injector.get(AdamantConnectionManager);
 }
 
-@Injectable()
 export class AdamantConnectionManager {
     
     protected readonly connections = new Map<string, PouchDB.Database<any>>();
     protected readonly repositories = new Map<Ctor<any>, AdamantRepository<any>>();
     protected readonly metadata = new Map<Ctor<any>, Metadata<any>>();
     
-    constructor(@Inject(ADAMANT_CONNECTION_FACTORY) protected readonly connectionFactory : ConnectionFactory,
-                @Inject(ADAMANT_ID) public readonly id : AdamantId,
-                protected readonly injector : Injector) {}
+    constructor(protected readonly connectionFactory : ConnectionFactory,
+                public readonly id : AdamantId,
+                protected readonly injector : AdamantInjector,
+                protected readonly injectorFactory : Function) {}
     
     getOpenConnections() : PouchDB.Database[] {
         return Array.from(this.connections.values());
@@ -75,21 +77,19 @@ export class AdamantConnectionManager {
     protected createRepository<T>(entityClass : Ctor<T>) : AdamantRepository<T> {
         const metadata = this.getMetadata(entityClass);
         
-        return Injector.create({
+        return this.injectorFactory({
             parent: this.injector,
             providers: [
                 { provide: AdamantConnectionManager, useValue: this },
-                { provide: AdamantRepository, deps: [ ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA, ADAMANT_EQUAL_CHECKER, ADAMANT_ID, Bulk, Hydrator, Validator] },
+                ADAMANT_REPOSITORY_PROVIDER,
                 { provide: ADAMANT_ENTITY_CLASS, useValue: entityClass },
                 { provide: ADAMANT_ENTITY_METADATA, useValue: metadata, },
                 { provide: ADAMANT_CONNECTION, useValue: !metadata.inline ? this.getConnection(metadata.name!) : null },
-                { provide: HydratorImpl, deps: [ ADAMANT_ID, AdamantConnectionManager] },
-                { provide: ValidatorImpl, deps: [] },
                 { provide: Hydrator, useExisting: metadata.hydrator || HydratorImpl },
                 { provide: Validator, useExisting: metadata.validator || ValidatorImpl },
-                { provide: Bulk, deps: [ ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA, Hydrator, Validator ] }
+                ADAMANT_BULK_PROVIDER
             ]
-        }).get<AdamantRepository<T>>(AdamantRepository);
+        }).get(AdamantRepository) as AdamantRepository<T>;
     }
     
     getMetadata<T>(entityClass : Ctor<T>) : Metadata<T> {
@@ -104,3 +104,14 @@ export class AdamantConnectionManager {
         return new Metadata<T>(entityClass);
     }
 }
+
+export const ADAMANT_CONNECTION_MANAGER_PROVIDER = {
+    provide: AdamantConnectionManager,
+    useFactory(connectionFactory : ConnectionFactory,
+               id : AdamantId,
+               injector : AdamantInjector,
+               injectorFactory : Function) {
+        return new AdamantConnectionManager(connectionFactory, id, injector, injectorFactory);
+    },
+    deps: [ ADAMANT_CONNECTION_FACTORY, ADAMANT_ID, ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY ]
+};

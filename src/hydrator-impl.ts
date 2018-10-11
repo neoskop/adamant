@@ -10,13 +10,11 @@ import { HasManyMetadata } from './annotations/has-many';
 import { Metadata } from './metadata';
 import { BelongsToMetadata } from './annotations/belongs-to';
 import { IdMetadata } from './annotations/id';
-import { Inject, Injectable } from '@angular/core';
 import { ADAMANT_ID, AdamantId } from './injector-tokens';
 import { AdamantEntityMeta, AdamantRevMeta } from './meta-interfaces';
 
-@Injectable()
 export class HydratorImpl extends Hydrator {
-    constructor(@Inject(ADAMANT_ID) protected readonly id : AdamantId,
+    constructor(protected readonly id : AdamantId,
                 protected readonly connectionManager : AdamantConnectionManager) {
         super();
     }
@@ -129,6 +127,15 @@ export class HydratorImpl extends Hydrator {
         return entity as T & AdamantRevMeta;
     }
 }
+
+export const ADAMANT_HYDRATOR_IMPL_PROVIDER = {
+    provide: HydratorImpl,
+    useFactory(id : AdamantId,
+               connectionManager : AdamantConnectionManager) {
+        return new HydratorImpl(id, connectionManager);
+    },
+    deps: [ ADAMANT_ID, AdamantConnectionManager ]
+};
 
 async function readAllWithCircularCache<T>(repo : AdamantRepository<T>, keys : string[], depth : number, circularCache : { [ key : string ] : any }) : Promise<T[]> {
     const filteredKeys = keys.filter(k => !circularCache.hasOwnProperty(k));

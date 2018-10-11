@@ -11,3 +11,11 @@ export class ValidatorImpl extends Validator {
     }
     
 }
+
+export const ADAMANT_VALIDATOR_IMPL_PROVIDER = {
+    provide: ValidatorImpl,
+    useFactory() {
+        return new ValidatorImpl();
+    },
+    deps: [ ]
+};
