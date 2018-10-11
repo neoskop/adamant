@@ -81,10 +81,10 @@ describe('HydratorImpl', () => {
     beforeEach(() => {
         repositorySpyMap = new Map();
         const conn = {
-            getMetadata<T>(entity : Ctor<T>) {
+            getMetadata(entity : Ctor<any>) {
                 return new Metadata(entity);
             },
-            getRepository<T>(entity : Ctor<T>) : any {
+            getRepository(entity : Ctor<any>) : any {
                 if(!repositorySpyMap.has(entity)) {
                     repositorySpyMap.set(entity, {
                         _read: stub().resolves(populate(new BelongsToEntity(), { id: 'a' })),
