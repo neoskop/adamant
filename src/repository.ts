@@ -244,8 +244,8 @@ export class AdamantRepository<T extends {}> {
         });
     }
 
-    async view<T, P extends keyof T>(
-        designDoc: Ctor<T>,
+    async view<D, P extends keyof D>(
+        designDoc: Ctor<D>,
         name: P,
         { depth, circularCache, ...options }: HydrateOptions & PouchDB.Query.Options<T, any> = {}
     ): Promise<(T & AdamantRevMeta)[]> {
@@ -296,5 +296,14 @@ export const ADAMANT_REPOSITORY_PROVIDER = {
     ) {
         return new AdamantRepository(db, entityClass, metadata, equal, id, bulk, hydrator, validator);
     },
-    deps: [ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA, ADAMANT_EQUAL_CHECKER, ADAMANT_ID, Bulk, Hydrator, Validator]
+    deps: [
+        ADAMANT_CONNECTION,
+        ADAMANT_ENTITY_CLASS,
+        ADAMANT_ENTITY_METADATA,
+        ADAMANT_EQUAL_CHECKER,
+        ADAMANT_ID,
+        Bulk,
+        Hydrator,
+        Validator
+    ] as any[]
 };
