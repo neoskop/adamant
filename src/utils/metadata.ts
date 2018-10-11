@@ -1,11 +1,14 @@
 import 'reflect-metadata';
 
-export type Ctor<T> = Function | { new(...args : any[]) : T; prototype: T };
+export interface Ctor<T extends {}> extends Function {
+    new(...args : any[]) : T;
+    prototype: T;
+}
 
-export const CLASS_METADATA = new WeakMap<Ctor<any>, any[]>();
-export const PROPERTY_METADATA = new WeakMap<Ctor<any>, Map<string|symbol, any[]>>();
+export const CLASS_METADATA = new WeakMap<Ctor<any>|Function, any[]>();
+export const PROPERTY_METADATA = new WeakMap<Ctor<any>|Function, Map<string|symbol, any[]>>();
 
-export function getClassMetadata<T = any>(target : Ctor<any>, type? : Ctor<T>) : T[] {
+export function getClassMetadata<T = any>(target : Ctor<any>|Function, type? : Ctor<T>) : T[] {
     if(!CLASS_METADATA.has(target)) {
         return [];
     }
@@ -13,7 +16,7 @@ export function getClassMetadata<T = any>(target : Ctor<any>, type? : Ctor<T>) :
     return CLASS_METADATA.get(target)!.filter(a => !type || a instanceof type);
 }
 
-export function pushClassMetadata(target : Ctor<any>, metadata : any) {
+export function pushClassMetadata(target : Ctor<any>|Function, metadata : any) {
     if(!CLASS_METADATA.has(target)) {
         CLASS_METADATA.set(target, []);
     }

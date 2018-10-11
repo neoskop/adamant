@@ -1,3 +1,5 @@
+import { Ctor } from './utils/metadata';
+
 export class InjectionToken<T> {
     constructor(protected readonly _desc : string, _options?: {
         providedIn?: any | 'root' | null;
@@ -26,11 +28,6 @@ export function resolveForwardRef(type : any) {
     } else {
         return type;
     }
-}
-
-export interface Ctor<T> extends Function {
-    new(...args : any[]) : T;
-    prototype: T;
 }
 
 export interface AdamantInjector {

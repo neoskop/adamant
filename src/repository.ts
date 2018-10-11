@@ -20,7 +20,7 @@ import {
 import { AdamantDeletedMeta, AdamantEntityMeta, AdamantRevMeta } from './meta-interfaces';
 
 
-export class AdamantRepository<T> {
+export class AdamantRepository<T extends {}> {
     protected readonly queryBatcher = new ReadQueryBatcher(this.db);
     
     constructor(protected readonly db : PouchDB.Database<T>,
