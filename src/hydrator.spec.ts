@@ -1,7 +1,7 @@
 import 'mocha';
 import { expect, use } from 'chai';
 import { Entity } from './annotations/entity';
-import { Id } from './annotations/id';
+import { Id, IdStrategy } from './annotations/id';
 import { Metadata } from './metadata';
 import { Property } from './annotations/property';
 import { SinonSpy, spy, stub } from 'sinon';
@@ -51,6 +51,12 @@ class HasManyMapEntity {
 class InlineEntityImpl {
     @Property()
     key?: string;
+}
+
+@Entity('uuid')
+class UuidEntity {
+    @Id({ strategy: IdStrategy.Uuid })
+    id?: string;
 }
 
 @Entity('complex-entity')
@@ -214,6 +220,26 @@ describe('HydratorImpl', () => {
                 hasManyMap: { a: 'has-many-map_2_a', b: 'has-many-map_2_b' },
                 inline: { key: 'foobar' }
             });
+        });
+
+        it('should create uuid if undefined', () => {
+            const entity = new UuidEntity();
+            const doc = hydrator.dehydrate(entity, new Metadata(UuidEntity));
+
+            expect(doc).to.have.keys('_id', 'id');
+            expect(doc.id)
+                .to.be.a('string')
+                .and.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+            expect(doc._id).to.be.equal(`uuid_2_${doc.id}`);
+        });
+
+        it('should keep uuid if existing', () => {
+            const entity = populate(new UuidEntity(), { id: '2882cd99-db2-ef3-a29-29fc49912abd64b' });
+            const doc = hydrator.dehydrate(entity, new Metadata(UuidEntity));
+
+            expect(doc).to.have.keys('_id', 'id');
+            expect(doc.id).to.be.equal('2882cd99-db2-ef3-a29-29fc49912abd64b');
+            expect(doc._id).to.be.equal(`uuid_2_${doc.id}`);
         });
     });
 });

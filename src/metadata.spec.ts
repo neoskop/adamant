@@ -99,9 +99,7 @@ describe('Metadata', () => {
 
         expect(metadata.properties).to.be.instanceOf(Map);
 
-        expect(metadata.properties.get('id')).to.be.eql(
-            Object.assign(new IdMetadata(), { type: String, required: true, strategy: IdStrategy.Static })
-        );
+        expect(metadata.properties.get('id')).to.be.eql(Object.assign(new IdMetadata(), { type: String, strategy: IdStrategy.Static }));
         expect(metadata.properties.get('name')).to.be.eql(Object.assign(new PropertyMetadata(), { type: String, required: false }));
         expect(metadata.properties.get('belongsToImplicit')).to.be.eql(
             Object.assign(new BelongsToMetadata(), { type: Implicit, required: false })

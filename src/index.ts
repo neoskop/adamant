@@ -15,6 +15,7 @@ export * from './annotations/view';
 export * from './utils/defer';
 export * from './utils/marks';
 export * from './utils/metadata';
+export * from './utils/uuid';
 
 export * from './bulk';
 export * from './connection-manager';

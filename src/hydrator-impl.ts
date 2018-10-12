@@ -9,9 +9,10 @@ import { AdamantConnectionManager } from './connection-manager';
 import { HasManyMetadata } from './annotations/has-many';
 import { Metadata } from './metadata';
 import { BelongsToMetadata } from './annotations/belongs-to';
-import { IdMetadata } from './annotations/id';
+import { IdMetadata, IdStrategy } from './annotations/id';
 import { ADAMANT_ID, AdamantId } from './injector-tokens';
 import { AdamantEntityMeta, AdamantRevMeta } from './meta-interfaces';
+import { uuid } from './utils/uuid';
 
 export class HydratorImpl extends Hydrator {
     constructor(protected readonly id: AdamantId, protected readonly connectionManager: AdamantConnectionManager) {
@@ -34,7 +35,7 @@ export class HydratorImpl extends Hydrator {
         }
 
         for (const [property, annotation] of metadata.properties) {
-            const value: any = entity[property as keyof T];
+            let value: any = entity[property as keyof T];
             /* instanbul ignore else */
             if (annotation instanceof RelationMetadata) {
                 if (value != null) {
@@ -56,11 +57,13 @@ export class HydratorImpl extends Hydrator {
                     }
                 }
             } else if (annotation instanceof PropertyMetadata) {
-                doc[property] = value;
-
                 if (annotation instanceof IdMetadata) {
+                    if (!value && annotation.strategy === IdStrategy.Uuid) {
+                        value = uuid();
+                    }
                     doc._id = this.id.build(metadata.name!, metadata.idType, value as any);
                 }
+                doc[property] = value;
             }
 
             if (undefined === doc[property]) {
