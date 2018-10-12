@@ -7,7 +7,7 @@ import { AdamantRepository } from './repository';
 import { RelationMetadata } from './annotations/relation';
 import { AdamantConnectionManager } from './connection-manager';
 import { HasManyMetadata } from './annotations/has-many';
-import { Metadata } from './metadata';
+import { EntityMetadataCollection } from './metadata';
 import { BelongsToMetadata } from './annotations/belongs-to';
 import { IdMetadata, IdStrategy } from './annotations/id';
 import { AdamantId } from './injector-tokens';
@@ -17,7 +17,7 @@ import { uuid } from './utils/uuid';
 export class HydratorImpl<T> extends Hydrator<T> {
     constructor(
         protected readonly id: AdamantId,
-        protected readonly metadata: Metadata<T>,
+        protected readonly metadata: EntityMetadataCollection<T>,
         protected readonly connectionManager: AdamantConnectionManager
     ) {
         super();
@@ -169,7 +169,7 @@ async function readAllWithCircularCache<T>(
     });
 }
 
-function relationToId<T>(rel: string | T, metadata: Metadata<T>, id: AdamantId): string {
+function relationToId<T>(rel: string | T, metadata: EntityMetadataCollection<T>, id: AdamantId): string {
     return typeof rel === 'string' ? rel : id.build(metadata.name!, metadata.idType, rel[metadata.id] as any);
 }
 

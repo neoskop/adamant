@@ -11,7 +11,7 @@ import { InlineMetadata } from './annotations/inline';
 import { InlineEntityMetadata } from './annotations/inline-entity';
 import { AdamantInjector } from './injector';
 
-export class Metadata<T> {
+export class EntityMetadataCollection<T> {
     readonly inline: boolean = false;
     readonly name?: string;
     readonly attachments?: boolean;
@@ -73,7 +73,7 @@ export class Metadata<T> {
     }
 
     protected assert() {
-        for (const key of (this.inline ? [] : ['id', 'idStrategy', 'name', 'attachments']) as (keyof Metadata<T>)[]) {
+        for (const key of (this.inline ? [] : ['id', 'idStrategy', 'name', 'attachments']) as (keyof EntityMetadataCollection<T>)[]) {
             if (null == this[key]) {
                 throw new Error(`Missing metadata '${key}' for entity "${this.entity.name}"`);
             }

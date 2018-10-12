@@ -2,7 +2,7 @@ import 'mocha';
 import { expect, use } from 'chai';
 import { Entity } from './annotations/entity';
 import { Id } from './annotations/id';
-import { Metadata } from './metadata';
+import { EntityMetadataCollection } from './metadata';
 import { Property } from './annotations/property';
 import { ValidatorImpl } from './validator-impl';
 
@@ -21,11 +21,11 @@ export class TestEntity {
 }
 
 describe('ValidatorImpl', () => {
-    let metadata: Metadata<TestEntity>;
+    let metadata: EntityMetadataCollection<TestEntity>;
     let validator: ValidatorImpl<TestEntity>;
 
     beforeEach(() => {
-        metadata = new Metadata(TestEntity);
+        metadata = new EntityMetadataCollection(TestEntity);
         validator = new ValidatorImpl(metadata);
     });
 

@@ -2,7 +2,7 @@ import 'mocha';
 import { expect } from 'chai';
 import { Entity } from './annotations/entity';
 import { Id, IdMetadata, IdStrategy } from './annotations/id';
-import { Metadata } from './metadata';
+import { EntityMetadataCollection } from './metadata';
 import { Property, PropertyMetadata } from './annotations/property';
 import { BelongsTo, BelongsToMetadata } from './annotations/belongs-to';
 import { Inline, InlineMetadata } from './annotations/inline';
@@ -62,31 +62,31 @@ export class InlineTestEntity {
 
 describe('Metadata', () => {
     it('create create default metadata', () => {
-        const metadata = new Metadata(DefaultMetadataFixture);
+        const metadata = new EntityMetadataCollection(DefaultMetadataFixture);
 
-        expect(metadata).to.be.instanceOf(Metadata);
+        expect(metadata).to.be.instanceOf(EntityMetadataCollection);
     });
 
     it('should throw on missing entity annotation', () => {
         expect(() => {
-            new Metadata(MissingEntityMetadataFixture);
+            new EntityMetadataCollection(MissingEntityMetadataFixture);
         }).to.throw(`Missing metadata 'name' for entity "MissingEntityMetadataFixture"`);
     });
 
     it('should throw on missing id annotation', () => {
         expect(() => {
-            new Metadata(MissingIdMetadataFixture);
+            new EntityMetadataCollection(MissingIdMetadataFixture);
         }).to.throw(`Missing metadata 'id' for entity "MissingIdMetadataFixture"`);
     });
 
     it('should not throw on missing id annotation on inline entity', () => {
-        const metadata = new Metadata(InlineTestEntity);
+        const metadata = new EntityMetadataCollection(InlineTestEntity);
 
-        expect(metadata).to.be.instanceOf(Metadata);
+        expect(metadata).to.be.instanceOf(EntityMetadataCollection);
     });
 
     it('should provide full metadata', () => {
-        const metadata = new Metadata(FullMetadataFixture);
+        const metadata = new EntityMetadataCollection(FullMetadataFixture);
 
         expect(metadata.name).to.be.equal('full');
         expect(metadata.attachments).to.be.false;

@@ -1,7 +1,7 @@
 import { Validator } from './validator';
 import { Ctor, getAllPropertyMetadata, getClassMetadata, getPropertyMetadata, populate } from './utils/metadata';
 import { HydrateOptions, Hydrator } from './hydrator';
-import { Metadata } from './metadata';
+import { EntityMetadataCollection } from './metadata';
 import { Bulk } from './bulk';
 import { markDeleted, markIdRev } from './utils/marks';
 import { ReadQueryBatcher } from './read-query-batcher';
@@ -40,7 +40,7 @@ export class AdamantRepository<T extends {}> {
     constructor(
         protected readonly db: PouchDB.Database<T>,
         protected readonly entityClass: Ctor<T>,
-        protected readonly metadata: Metadata<T>,
+        protected readonly metadata: EntityMetadataCollection<T>,
         protected readonly equal: EqualChecker,
         protected readonly adamantId: AdamantId,
         public readonly bulk: Bulk<T>,
@@ -301,7 +301,7 @@ export const ADAMANT_REPOSITORY_PROVIDER = {
     useFactory(
         db: PouchDB.Database<any>,
         entityClass: Ctor<any>,
-        metadata: Metadata<any>,
+        metadata: EntityMetadataCollection<any>,
         equal: EqualChecker,
         id: AdamantId,
         bulk: Bulk<any>,

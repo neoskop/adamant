@@ -1,6 +1,6 @@
 import { ADAMANT_REPOSITORY_PROVIDER, AdamantRepository } from './repository';
 import { Ctor } from './utils/metadata';
-import { Metadata } from './metadata';
+import { EntityMetadataCollection } from './metadata';
 import { ADAMANT_BULK_PROVIDER } from './bulk';
 import { Hydrator } from './hydrator';
 import { Validator } from './validator';
@@ -17,7 +17,7 @@ import {
 } from './injector-tokens';
 import { adamantIdFactory, equalCheckerFactory } from './factories';
 import { ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY, AdamantInjector, createInjector } from './injector';
-import { HydratorImpl } from '@neoskop/adamant';
+import { HydratorImpl } from './hydrator-impl';
 
 export function createAdamantConnection(factory: ConnectionFactory): AdamantConnectionManager {
     const injector = createInjector({
@@ -35,7 +35,7 @@ export function createAdamantConnection(factory: ConnectionFactory): AdamantConn
 export class AdamantConnectionManager {
     protected readonly connections = new Map<string, PouchDB.Database<any>>();
     protected readonly repositories = new Map<Ctor<any>, AdamantRepository<any>>();
-    protected readonly metadata = new Map<Ctor<any>, Metadata<any>>();
+    protected readonly metadata = new Map<Ctor<any>, EntityMetadataCollection<any>>();
 
     constructor(
         protected readonly connectionFactory: ConnectionFactory,
@@ -106,7 +106,7 @@ export class AdamantConnectionManager {
         }).get(AdamantRepository) as AdamantRepository<T>;
     }
 
-    getMetadata<T>(entityClass: Ctor<T>): Metadata<T> {
+    getMetadata<T>(entityClass: Ctor<T>): EntityMetadataCollection<T> {
         if (!this.metadata.has(entityClass)) {
             this.metadata.set(entityClass, this.createMetadata(entityClass));
         }
@@ -114,8 +114,8 @@ export class AdamantConnectionManager {
         return this.metadata.get(entityClass)!;
     }
 
-    protected createMetadata<T>(entityClass: Ctor<T>): Metadata<T> {
-        return new Metadata<T>(entityClass);
+    protected createMetadata<T>(entityClass: Ctor<T>): EntityMetadataCollection<T> {
+        return new EntityMetadataCollection<T>(entityClass);
     }
 }
 

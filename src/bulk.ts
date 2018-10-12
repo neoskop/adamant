@@ -3,7 +3,7 @@ import { Validator } from './validator';
 import { Ctor } from './utils/metadata';
 import { ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA } from './injector-tokens';
 import { markDeleted, markIdRev } from './utils/marks';
-import { Metadata } from './metadata';
+import { EntityMetadataCollection } from './metadata';
 import { AdamantDeletedMeta, AdamantRevMeta } from './meta-interfaces';
 
 export enum BulkOperation {
@@ -16,7 +16,7 @@ export class Bulk<T> {
     constructor(
         protected readonly db: PouchDB.Database<T>,
         protected readonly entityClass: Ctor<T>,
-        protected readonly metadata: Metadata<T>,
+        protected readonly metadata: EntityMetadataCollection<T>,
         protected readonly hydrator: Hydrator<T>,
         protected readonly validator: Validator<T>
     ) {}
@@ -79,7 +79,7 @@ export const ADAMANT_BULK_PROVIDER = {
     useFactory(
         db: PouchDB.Database<any>,
         entityClass: Ctor<any>,
-        metadata: Metadata<any>,
+        metadata: EntityMetadataCollection<any>,
         hydrator: Hydrator<any>,
         validator: Validator<any>
     ) {

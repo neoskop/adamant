@@ -2,7 +2,7 @@ import 'mocha';
 import { expect, use } from 'chai';
 import { Entity } from './annotations/entity';
 import { Id, IdStrategy } from './annotations/id';
-import { Metadata } from './metadata';
+import { EntityMetadataCollection } from './metadata';
 import { Property } from './annotations/property';
 import { SinonSpy, spy, stub } from 'sinon';
 import { BelongsTo } from './annotations/belongs-to';
@@ -98,7 +98,7 @@ describe('HydratorImpl', () => {
         repositorySpyMap = new Map();
         const conn = {
             getMetadata(entity: Ctor<any>) {
-                return new Metadata(entity);
+                return new EntityMetadataCollection(entity);
             },
             getRepository(entity: Ctor<any>): any {
                 if (!repositorySpyMap.has(entity)) {
@@ -129,10 +129,10 @@ describe('HydratorImpl', () => {
             }
         };
         getRepositorySpy = spy(conn, 'getRepository');
-        simpleHydrator = new HydratorImpl(adamantIdFactory(), new Metadata(SimpleEntity), conn as any);
-        complexHydrator = new HydratorImpl(adamantIdFactory(), new Metadata(ComplexEntity), conn as any);
-        uuidHydrator = new HydratorImpl(adamantIdFactory(), new Metadata(UuidEntity), conn as any);
-        defaultHydrator = new HydratorImpl(adamantIdFactory(), new Metadata(DefaultEntity), conn as any);
+        simpleHydrator = new HydratorImpl(adamantIdFactory(), new EntityMetadataCollection(SimpleEntity), conn as any);
+        complexHydrator = new HydratorImpl(adamantIdFactory(), new EntityMetadataCollection(ComplexEntity), conn as any);
+        uuidHydrator = new HydratorImpl(adamantIdFactory(), new EntityMetadataCollection(UuidEntity), conn as any);
+        defaultHydrator = new HydratorImpl(adamantIdFactory(), new EntityMetadataCollection(DefaultEntity), conn as any);
     });
 
     describe('hydrate', () => {
