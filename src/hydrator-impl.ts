@@ -59,7 +59,7 @@ export class HydratorImpl extends Hydrator {
             } else if (annotation instanceof PropertyMetadata) {
                 if (annotation instanceof IdMetadata) {
                     if (!value && annotation.strategy === IdStrategy.Uuid) {
-                        value = uuid();
+                        entity[property as keyof T] = value = uuid() as any;
                     }
                     doc._id = this.id.build(metadata.name!, metadata.idType, value as any);
                 }

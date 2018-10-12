@@ -222,7 +222,7 @@ describe('HydratorImpl', () => {
             });
         });
 
-        it('should create uuid if undefined', () => {
+        it('should create uuid if undefined and write it in entity', () => {
             const entity = new UuidEntity();
             const doc = hydrator.dehydrate(entity, new Metadata(UuidEntity));
 
@@ -231,6 +231,7 @@ describe('HydratorImpl', () => {
                 .to.be.a('string')
                 .and.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
             expect(doc._id).to.be.equal(`uuid_2_${doc.id}`);
+            expect(entity.id).to.be.equal(doc.id);
         });
 
         it('should keep uuid if existing', () => {
