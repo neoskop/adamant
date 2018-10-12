@@ -205,7 +205,7 @@ export class AdamantRepository<T extends {}> {
             filters: { [key: string]: string };
             validate_doc_update?: string;
         } = {
-            _id: `_design/${classAnnotations[0].name}`,
+            _id: `_design/${classAnnotations[0].name || this.metadata.name}`,
             views: {},
             filters: {}
         };
