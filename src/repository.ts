@@ -35,6 +35,10 @@ export class AdamantRepository<T extends {}> {
         public readonly validator: Validator
     ) {}
 
+    getConnection(): PouchDB.Database<T> {
+        return this.db;
+    }
+
     async create(entity: T): Promise<T & AdamantRevMeta> {
         await this.validator.validate(entity, this.metadata);
 
