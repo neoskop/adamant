@@ -63,6 +63,9 @@ export class HydratorImpl extends Hydrator {
                     }
                     doc._id = this.id.build(metadata.name!, metadata.idType, value as any);
                 }
+                if (undefined === value && undefined !== annotation.default) {
+                    entity[property as keyof T] = value = annotation.default as any;
+                }
                 doc[property] = value;
             }
 

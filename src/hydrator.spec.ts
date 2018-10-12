@@ -77,6 +77,15 @@ export class ComplexEntity {
     inline?: InlineEntityImpl;
 }
 
+@Entity('default')
+export class DefaultEntity {
+    @Id()
+    id!: string;
+
+    @Property({ default: 'defaultValue' })
+    def?: string;
+}
+
 describe('HydratorImpl', () => {
     let metadata: Metadata<SimpleEntity>;
     let hydrator: HydratorImpl;
@@ -241,6 +250,15 @@ describe('HydratorImpl', () => {
             expect(doc).to.have.keys('_id', 'id');
             expect(doc.id).to.be.equal('2882cd99-db2-ef3-a29-29fc49912abd64b');
             expect(doc._id).to.be.equal(`uuid_2_${doc.id}`);
+        });
+
+        it('should use default value and write it back to entity', () => {
+            const entity = new DefaultEntity();
+            entity.id = 'id';
+            const doc = hydrator.dehydrate(entity, new Metadata(DefaultEntity));
+
+            expect(doc).to.be.eql({ _id: 'default_2_id', id: 'id', def: 'defaultValue' });
+            expect(entity.def).to.be.equal(doc.def);
         });
     });
 });
