@@ -4,21 +4,28 @@ import { PropertyMetadata, Type } from './property';
 
 export enum IdStrategy {
     Static = 'static',
-    // Uuid = 'uuid',
+    Uuid = 'uuid'
     // Increment = 'increment'
 }
 
 export class IdMetadata extends PropertyMetadata {
     strategy!: IdStrategy;
-    readonly required = true;
+    // readonly required = true;
+    get required() {
+        return this.strategy === IdStrategy.Static;
+    }
 }
 
-export function Id(options: { strategy?: IdStrategy, type?: Type } = {}) : PropertyDecorator {
+export function Id(options: { strategy?: IdStrategy; type?: Type } = {}): PropertyDecorator {
     return (target: Object, property: string | symbol) => {
-        pushPropertyMetadata(target.constructor, property, populate(new IdMetadata(), {
-            strategy: IdStrategy.Static,
-            type: Reflect.getMetadata('design:type', target, property),
-            ...options
-        }))
-    }
+        pushPropertyMetadata(
+            target.constructor,
+            property,
+            populate(new IdMetadata(), {
+                strategy: IdStrategy.Static,
+                type: Reflect.getMetadata('design:type', target, property),
+                ...options
+            })
+        );
+    };
 }

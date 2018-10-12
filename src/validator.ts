@@ -1,5 +1,3 @@
-import { Metadata } from './metadata';
-
-export abstract class Validator {
-    abstract validate<T>(entity : T, _metadata : Metadata<T>) : Promise<true>;
+export abstract class Validator<T> {
+    abstract validate(entity: T): Promise<true>;
 }

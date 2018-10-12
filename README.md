@@ -1,6 +1,19 @@
 # @neoskop/adamant
 
-> PouchDB ORM
+> PouchDB ORM written in pure Typescript  
+> ***adamant***: *too hard to cut, break, or pierce.*
+
+## Features
+
+ - Define your entities and design docs with annotations
+ - design docs
+    - views
+    - filters
+    - validate_doc_update (with PouchDB-Plugin or CouchDB)
+ - Relations
+    - belongsTo
+    - hasMany/hasManyMap
+    - inline
 
 ## Installation
 ```bash
@@ -10,9 +23,83 @@ $ npm i @neoskop/adamant
 ```
 
 ## Usage
+
+**Write you entities/interfaces at once**  
+An entity requires an Entity and an Id annotation.
+
+```typescript
+@Entity('person')
+class PersonEntity {
+    @Id()
+    id!: string;
+    
+    @Property()
+    name?: string;
+}
+```
+
+**Create/update/read from database**
+
+```typescript
+declare const connection : AdamantConnectionManager;
+
+const repo = connection.getRepository(PersonEntity);
+
+const person = repo.build({ id: '1', name: 'Jon Doe' });
+
+await repo.create(person); // persist in database
+
+person.name = 'Jane Doe';
+
+await repo.update(person); // update database entry
+await repo.upsert(person); // inserts/updates if needed
+
+const personCopy = await repo.read('1'); // personCopy equals person
+
+await repo.delete(personCopy); // marks database entry as deleted (_deleted = true)
+```
+
+**Create and resolve relations**
+
+```typescript
+@Entity('class')
+class ClassEntity {
+    @Id()
+    id!: string;
+    
+    @HasMany(Person)
+    persons?: Person[];
+}
+
+const classRepo = connection.getRepository(ClassEntity);
+const personRepo = connection.getRepository(PersonEntity);
+
+const janeDoe = personRepo.build({ id: '1', name: 'Jane Doe' });
+const jonDoe = personRepo.build({ id: '2', name: 'Jon Doe' });
+
+await personRepo.bulk.create([ janeDoe, jonDoe ]); // persist multiple entities at once
+
+const cls = classRepo.build({ id: '2a', persons: [ janeDoe, jonDoe ] });
+
+await classRepo.create(cls); // relations will be replace with their id's
+
+```
+
+**Angular Module**
+
 ```typescript
 
-// Comming soon
+@NgModule({
+    imports: [
+        CommonModule,
+        AdamantModule.forRoot({
+            factory: …,
+            entities: […],
+            designDocs: […]
+        })
+    ]
+})
+export class AppModule {}
 
 ```
 
@@ -28,6 +115,7 @@ $ yarn
 
 ```bash
 $ yarn test
+$ yarn run coverage
 ```
 
 ### Build

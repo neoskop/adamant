@@ -12,11 +12,19 @@ export * from './annotations/relation';
 export * from './annotations/validate-doc';
 export * from './annotations/view';
 
+export * from './utils/defer';
+export * from './utils/marks';
+export * from './utils/metadata';
+export * from './utils/uuid';
+
 export * from './bulk';
 export * from './connection-manager';
+export * from './factories';
 export * from './hydrator';
 export * from './hydrator-impl';
+export * from './injector';
 export * from './injector-tokens';
+export * from './meta-interfaces';
 export * from './metadata';
 export * from './query-builder';
 export * from './repository';

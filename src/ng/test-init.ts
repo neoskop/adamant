@@ -6,7 +6,4 @@ require('zone.js/dist/proxy');
 import { getTestBed } from '@angular/core/testing';
 import { platformServerTesting, ServerTestingModule } from '@angular/platform-server/testing';
 
-getTestBed().initTestEnvironment(
-    ServerTestingModule,
-    platformServerTesting()
-);
+getTestBed().initTestEnvironment(ServerTestingModule, platformServerTesting());
