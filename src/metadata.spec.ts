@@ -62,31 +62,31 @@ export class InlineTestEntity {
 
 describe('Metadata', () => {
     it('create create default metadata', () => {
-        const metadata = new EntityMetadataCollection(DefaultMetadataFixture);
+        const metadata = EntityMetadataCollection.create(DefaultMetadataFixture);
 
         expect(metadata).to.be.instanceOf(EntityMetadataCollection);
     });
 
     it('should throw on missing entity annotation', () => {
         expect(() => {
-            new EntityMetadataCollection(MissingEntityMetadataFixture);
+            EntityMetadataCollection.create(MissingEntityMetadataFixture);
         }).to.throw(`Missing metadata 'name' for entity "MissingEntityMetadataFixture"`);
     });
 
     it('should throw on missing id annotation', () => {
         expect(() => {
-            new EntityMetadataCollection(MissingIdMetadataFixture);
+            EntityMetadataCollection.create(MissingIdMetadataFixture);
         }).to.throw(`Missing metadata 'id' for entity "MissingIdMetadataFixture"`);
     });
 
     it('should not throw on missing id annotation on inline entity', () => {
-        const metadata = new EntityMetadataCollection(InlineTestEntity);
+        const metadata = EntityMetadataCollection.create(InlineTestEntity);
 
         expect(metadata).to.be.instanceOf(EntityMetadataCollection);
     });
 
     it('should provide full metadata', () => {
-        const metadata = new EntityMetadataCollection(FullMetadataFixture);
+        const metadata = EntityMetadataCollection.create(FullMetadataFixture);
 
         expect(metadata.name).to.be.equal('full');
         expect(metadata.attachments).to.be.false;

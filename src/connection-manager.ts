@@ -35,7 +35,7 @@ export function createAdamantConnection(factory: ConnectionFactory): AdamantConn
 export class AdamantConnectionManager {
     protected readonly connections = new Map<string, PouchDB.Database<any>>();
     protected readonly repositories = new Map<Ctor<any>, AdamantRepository<any>>();
-    protected readonly metadata = new Map<Ctor<any>, EntityMetadataCollection<any>>();
+    // protected readonly metadata = new Map<Ctor<any>, EntityMetadataCollection<any>>();
 
     constructor(
         protected readonly connectionFactory: ConnectionFactory,
@@ -107,15 +107,7 @@ export class AdamantConnectionManager {
     }
 
     getMetadata<T>(entityClass: Ctor<T>): EntityMetadataCollection<T> {
-        if (!this.metadata.has(entityClass)) {
-            this.metadata.set(entityClass, this.createMetadata(entityClass));
-        }
-
-        return this.metadata.get(entityClass)!;
-    }
-
-    protected createMetadata<T>(entityClass: Ctor<T>): EntityMetadataCollection<T> {
-        return new EntityMetadataCollection<T>(entityClass);
+        return EntityMetadataCollection.create(entityClass);
     }
 }
 

@@ -11,6 +11,8 @@ import { InlineMetadata } from './annotations/inline';
 import { InlineEntityMetadata } from './annotations/inline-entity';
 import { AdamantInjector } from './injector';
 
+const ENTITY_METADATA_CACHE = new WeakMap<Ctor<any>, EntityMetadataCollection<any>>();
+
 export class EntityMetadataCollection<T> {
     readonly inline: boolean = false;
     readonly name?: string;
@@ -22,6 +24,14 @@ export class EntityMetadataCollection<T> {
     readonly idType!: typeof String | typeof Number;
     readonly idStrategy!: IdStrategy;
 
+    static create<E>(entity: Ctor<E>): EntityMetadataCollection<E> {
+        if (!ENTITY_METADATA_CACHE.has(entity)) {
+            ENTITY_METADATA_CACHE.set(entity, new EntityMetadataCollection<E>(entity));
+        }
+
+        return ENTITY_METADATA_CACHE.get(entity)!;
+    }
+
     readonly properties = new Map<
         string | symbol,
         PropertyMetadata | IdMetadata | BelongsToMetadata<any> | HasManyMetadata<any> | HasManyMapMetadata<any> | InlineMetadata<any>
@@ -30,7 +40,7 @@ export class EntityMetadataCollection<T> {
     // readonly hasMany = new Map<string | symbol, HasManyMetadata<any>>();
     // readonly hasManyMap = new Map<string | symbol, HasManyMapMetadata<any>>();
 
-    constructor(protected readonly entity: Ctor<T>) {
+    private constructor(protected readonly entity: Ctor<T>) {
         this.parse();
         this.assert();
     }

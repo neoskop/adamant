@@ -98,7 +98,7 @@ describe('HydratorImpl', () => {
         repositorySpyMap = new Map();
         const conn = {
             getMetadata(entity: Ctor<any>) {
-                return new EntityMetadataCollection(entity);
+                return EntityMetadataCollection.create(entity);
             },
             getRepository(entity: Ctor<any>): any {
                 if (!repositorySpyMap.has(entity)) {
@@ -129,10 +129,10 @@ describe('HydratorImpl', () => {
             }
         };
         getRepositorySpy = spy(conn, 'getRepository');
-        simpleHydrator = new HydratorImpl(adamantIdFactory(), new EntityMetadataCollection(SimpleEntity), conn as any);
-        complexHydrator = new HydratorImpl(adamantIdFactory(), new EntityMetadataCollection(ComplexEntity), conn as any);
-        uuidHydrator = new HydratorImpl(adamantIdFactory(), new EntityMetadataCollection(UuidEntity), conn as any);
-        defaultHydrator = new HydratorImpl(adamantIdFactory(), new EntityMetadataCollection(DefaultEntity), conn as any);
+        simpleHydrator = new HydratorImpl(adamantIdFactory(), EntityMetadataCollection.create(SimpleEntity), conn as any);
+        complexHydrator = new HydratorImpl(adamantIdFactory(), EntityMetadataCollection.create(ComplexEntity), conn as any);
+        uuidHydrator = new HydratorImpl(adamantIdFactory(), EntityMetadataCollection.create(UuidEntity), conn as any);
+        defaultHydrator = new HydratorImpl(adamantIdFactory(), EntityMetadataCollection.create(DefaultEntity), conn as any);
     });
 
     describe('hydrate', () => {

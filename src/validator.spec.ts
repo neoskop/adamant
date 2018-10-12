@@ -25,7 +25,7 @@ describe('ValidatorImpl', () => {
     let validator: ValidatorImpl<TestEntity>;
 
     beforeEach(() => {
-        metadata = new EntityMetadataCollection(TestEntity);
+        metadata = EntityMetadataCollection.create(TestEntity);
         validator = new ValidatorImpl(metadata);
     });
 
