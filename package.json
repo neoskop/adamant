@@ -1,6 +1,6 @@
 {
     "name": "@neoskop/adamant",
-    "version": "0.1.0-rc.14",
+    "version": "0.1.0",
     "description": "PouchDB ORM",
     "main": "index.js",
     "repository": "git@github.com:neoskop/adamant.git",
