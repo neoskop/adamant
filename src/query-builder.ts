@@ -1,5 +1,6 @@
 import { AdamantRepository } from './repository';
 import { HydrateOptions } from './hydrator';
+import { AdamantRevMeta } from './meta-interfaces';
 
 export class QueryBuilder<T> {
     protected _selector: PouchDB.Find.Selector = {};
@@ -60,7 +61,7 @@ export class QueryBuilder<T> {
         return this;
     }
 
-    resolve(options?: HydrateOptions): Promise<T[]> {
+    resolve(options?: HydrateOptions): Promise<(T & AdamantRevMeta)[]> {
         return this.repository.executeQuery(this, options);
     }
 
