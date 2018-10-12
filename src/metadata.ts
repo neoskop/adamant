@@ -9,13 +9,14 @@ import { HasManyMetadata } from './annotations/has-many';
 import { HasManyMapMetadata } from './annotations/has-many-map';
 import { InlineMetadata } from './annotations/inline';
 import { InlineEntityMetadata } from './annotations/inline-entity';
+import { AdamantInjector } from './injector';
 
 export class Metadata<T> {
     readonly inline: boolean = false;
     readonly name?: string;
     readonly attachments?: boolean;
-    readonly hydrator!: Ctor<Hydrator>;
-    readonly validator!: Ctor<Validator>;
+    readonly hydrator!: (injector: AdamantInjector) => Hydrator<T>;
+    readonly validator!: (injector: AdamantInjector) => Validator<T>;
 
     readonly id!: keyof T;
     readonly idType!: typeof String | typeof Number;

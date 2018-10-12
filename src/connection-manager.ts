@@ -4,8 +4,7 @@ import { Metadata } from './metadata';
 import { ADAMANT_BULK_PROVIDER } from './bulk';
 import { Hydrator } from './hydrator';
 import { Validator } from './validator';
-import { ADAMANT_HYDRATOR_IMPL_PROVIDER, HydratorImpl } from './hydrator-impl';
-import { ADAMANT_VALIDATOR_IMPL_PROVIDER, ValidatorImpl } from './validator-impl';
+import { ValidatorImpl } from './validator-impl';
 import {
     ADAMANT_CONNECTION,
     ADAMANT_CONNECTION_FACTORY,
@@ -18,6 +17,7 @@ import {
 } from './injector-tokens';
 import { adamantIdFactory, equalCheckerFactory } from './factories';
 import { ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY, AdamantInjector, createInjector } from './injector';
+import { HydratorImpl } from '@neoskop/adamant';
 
 export function createAdamantConnection(factory: ConnectionFactory): AdamantConnectionManager {
     const injector = createInjector({
@@ -25,9 +25,7 @@ export function createAdamantConnection(factory: ConnectionFactory): AdamantConn
             { provide: ADAMANT_CONNECTION_FACTORY, useValue: factory },
             ADAMANT_CONNECTION_MANAGER_PROVIDER,
             { provide: ADAMANT_ID, useFactory: adamantIdFactory, deps: [] },
-            { provide: ADAMANT_EQUAL_CHECKER, useFactory: equalCheckerFactory, deps: [] },
-            ADAMANT_HYDRATOR_IMPL_PROVIDER,
-            ADAMANT_VALIDATOR_IMPL_PROVIDER
+            { provide: ADAMANT_EQUAL_CHECKER, useFactory: equalCheckerFactory, deps: [] }
         ]
     });
 
@@ -85,8 +83,24 @@ export class AdamantConnectionManager {
                 { provide: ADAMANT_ENTITY_CLASS, useValue: entityClass },
                 { provide: ADAMANT_ENTITY_METADATA, useValue: metadata },
                 { provide: ADAMANT_CONNECTION, useValue: !metadata.inline ? this.getConnection(metadata.name!) : null },
-                { provide: Hydrator, useExisting: metadata.hydrator || HydratorImpl },
-                { provide: Validator, useExisting: metadata.validator || ValidatorImpl },
+                {
+                    provide: Hydrator,
+                    useFactory: metadata.hydrator
+                        ? metadata.hydrator
+                        : () => {
+                              return new HydratorImpl(this.id, metadata, this);
+                          },
+                    deps: [ADAMANT_INJECTOR]
+                },
+                {
+                    provide: Validator,
+                    useFactory: metadata.hydrator
+                        ? metadata.hydrator
+                        : () => {
+                              return new ValidatorImpl(metadata);
+                          },
+                    deps: [ADAMANT_INJECTOR]
+                },
                 ADAMANT_BULK_PROVIDER
             ]
         }).get(AdamantRepository) as AdamantRepository<T>;

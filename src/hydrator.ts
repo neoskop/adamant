@@ -1,4 +1,3 @@
-import { Metadata } from './metadata';
 import { AdamantEntityMeta, AdamantRevMeta } from './meta-interfaces';
 
 export interface HydrateOptions {
@@ -6,17 +5,15 @@ export interface HydrateOptions {
     circularCache?: { [key: string]: any };
 }
 
-export abstract class Hydrator {
-    abstract hydrate<T>(
+export abstract class Hydrator<T> {
+    abstract hydrate(
         entity: T,
-        data: PouchDB.Core.Document<T> & PouchDB.Core.GetMeta,
-        metadata: Metadata<T>,
+        data: PouchDB.Core.Document<T> & Partial<PouchDB.Core.GetMeta>,
         options?: HydrateOptions
     ): Promise<T & AdamantRevMeta>;
 
-    abstract dehydrate<T>(
+    abstract dehydrate(
         entity: T & AdamantEntityMeta,
-        metadata: Metadata<T>,
         options?: { includeRev?: boolean }
     ): PouchDB.Core.Document<T> & Partial<PouchDB.Core.RevisionIdMeta>;
 }

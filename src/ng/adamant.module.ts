@@ -1,6 +1,7 @@
 import { Inject, Injector, ModuleWithProviders, NgModule, Type } from '@angular/core';
 import {
     ADAMANT_CONNECTION_FACTORY,
+    ADAMANT_CONNECTION_MANAGER_PROVIDER,
     ADAMANT_EQUAL_CHECKER,
     ADAMANT_ID,
     ADAMANT_INJECTOR,
@@ -9,9 +10,7 @@ import {
     adamantIdFactory,
     ConnectionFactory,
     createAngularInjector,
-    equalCheckerFactory,
-    HydratorImpl,
-    ValidatorImpl
+    equalCheckerFactory
 } from '@neoskop/adamant';
 import { AdamantInitializationService } from './adamant-initialization.service';
 import { ADAMANT_DESIGN_DOCS, ADAMANT_ENTITIES, ADAMANT_INIT_ON_STARTUP } from './injector-tokens';
@@ -38,18 +37,12 @@ export class AdamantModule {
             ngModule: AdamantModule,
             providers: [
                 designDocs,
-                {
-                    provide: AdamantConnectionManager,
-                    useClass: AdamantConnectionManager,
-                    deps: [ADAMANT_CONNECTION_FACTORY, ADAMANT_ID, ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY]
-                },
+                ADAMANT_CONNECTION_MANAGER_PROVIDER,
                 { provide: ADAMANT_CONNECTION_FACTORY, useValue: factory },
                 { provide: ADAMANT_ENTITIES, useValue: entities, multi: true },
                 { provide: ADAMANT_DESIGN_DOCS, useFactory: designDocFactory, deps: designDocs, multi: true },
                 { provide: ADAMANT_ID, useFactory: adamantIdFactory },
                 { provide: ADAMANT_EQUAL_CHECKER, useFactory: equalCheckerFactory },
-                { provide: HydratorImpl, useClass: HydratorImpl, deps: [ADAMANT_ID, AdamantConnectionManager] },
-                { provide: ValidatorImpl, useClass: ValidatorImpl, deps: [] },
                 { provide: ADAMANT_INJECTOR, useExisting: Injector },
                 { provide: ADAMANT_INJECTOR_FACTORY, useValue: createAngularInjector },
                 { provide: ADAMANT_INIT_ON_STARTUP, useValue: initOnStartup },

@@ -44,8 +44,8 @@ export class AdamantRepository<T extends {}> {
         protected readonly equal: EqualChecker,
         protected readonly adamantId: AdamantId,
         public readonly bulk: Bulk<T>,
-        public readonly hydrator: Hydrator,
-        public readonly validator: Validator
+        public readonly hydrator: Hydrator<T>,
+        public readonly validator: Validator<T>
     ) {}
 
     getConnection(): PouchDB.Database<T> {
@@ -53,9 +53,9 @@ export class AdamantRepository<T extends {}> {
     }
 
     async create(entity: T): Promise<T & AdamantRevMeta> {
-        await this.validator.validate(entity, this.metadata);
+        await this.validator.validate(entity);
 
-        const doc = this.hydrator.dehydrate(entity, this.metadata);
+        const doc = this.hydrator.dehydrate(entity);
 
         const result = await this.db.put(doc);
 
@@ -65,9 +65,9 @@ export class AdamantRepository<T extends {}> {
     }
 
     async upsert(entity: T): Promise<T & AdamantRevMeta> {
-        await this.validator.validate(entity, this.metadata);
+        await this.validator.validate(entity);
 
-        const doc = this.hydrator.dehydrate(entity, this.metadata);
+        const doc = this.hydrator.dehydrate(entity);
 
         const result = await this._upsert(this.id.build(entity[this.metadata.id] as any), doc);
 
@@ -91,9 +91,9 @@ export class AdamantRepository<T extends {}> {
     }
 
     async update(entity: T): Promise<T & AdamantRevMeta> {
-        await this.validator.validate(entity, this.metadata);
+        await this.validator.validate(entity);
 
-        const doc = this.hydrator.dehydrate(entity, this.metadata, { includeRev: true });
+        const doc = this.hydrator.dehydrate(entity, { includeRev: true });
 
         const result = await this.db.put(doc);
 
@@ -103,11 +103,10 @@ export class AdamantRepository<T extends {}> {
     }
 
     async delete(entity: T): Promise<T & AdamantRevMeta & AdamantDeletedMeta> {
-        await this.validator.validate(entity, this.metadata);
+        await this.validator.validate(entity);
 
         const doc: PouchDB.Core.Document<T> & Partial<PouchDB.Core.RevisionIdMeta> & PouchDB.Core.ChangesMeta = this.hydrator.dehydrate(
             entity,
-            this.metadata,
             { includeRev: true }
         );
 
@@ -127,7 +126,7 @@ export class AdamantRepository<T extends {}> {
 
     /** @internal */
     async _read(id: string, options?: HydrateOptions): Promise<T & AdamantRevMeta> {
-        return this.hydrator.hydrate(Object.create(this.entityClass.prototype), await this._readRaw(id), this.metadata, options);
+        return this.hydrator.hydrate(Object.create(this.entityClass.prototype), await this._readRaw(id), options);
     }
 
     /** @internal */
@@ -167,9 +166,7 @@ export class AdamantRepository<T extends {}> {
         options?: HydrateOptions
     ): Promise<(T & AdamantRevMeta)[]> {
         return await Promise.all(
-            (await this._readAllRaw(opt)).map(async doc =>
-                this.hydrator.hydrate(Object.create(this.entityClass.prototype), doc, this.metadata, options)
-            )
+            (await this._readAllRaw(opt)).map(async doc => this.hydrator.hydrate(Object.create(this.entityClass.prototype), doc, options))
         );
     }
 
@@ -191,7 +188,7 @@ export class AdamantRepository<T extends {}> {
     async executeQuery(query: QueryBuilder<T>, options?: HydrateOptions): Promise<(T & AdamantRevMeta)[]> {
         return await Promise.all(
             (await this.db.find(query.toFindRequest())).docs.map(async doc =>
-                this.hydrator.hydrate(Object.create(this.entityClass.prototype), doc, this.metadata, options)
+                this.hydrator.hydrate(Object.create(this.entityClass.prototype), doc, options)
             )
         );
     }
@@ -286,7 +283,7 @@ export class AdamantRepository<T extends {}> {
 
         return await Promise.all(
             (await this.rawView(`${classAnnotation.name}/${name}`, options)).rows.map(row => row.doc!).map(async doc =>
-                this.hydrator.hydrate(Object.create(this.entityClass.prototype), doc, this.metadata, {
+                this.hydrator.hydrate(Object.create(this.entityClass.prototype), doc, {
                     depth,
                     circularCache
                 })
@@ -308,8 +305,8 @@ export const ADAMANT_REPOSITORY_PROVIDER = {
         equal: EqualChecker,
         id: AdamantId,
         bulk: Bulk<any>,
-        hydrator: Hydrator,
-        validator: Validator
+        hydrator: Hydrator<any>,
+        validator: Validator<any>
     ) {
         return new AdamantRepository(db, entityClass, metadata, equal, id, bulk, hydrator, validator);
     },

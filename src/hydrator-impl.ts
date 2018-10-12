@@ -10,18 +10,21 @@ import { HasManyMetadata } from './annotations/has-many';
 import { Metadata } from './metadata';
 import { BelongsToMetadata } from './annotations/belongs-to';
 import { IdMetadata, IdStrategy } from './annotations/id';
-import { ADAMANT_ID, AdamantId } from './injector-tokens';
+import { AdamantId } from './injector-tokens';
 import { AdamantEntityMeta, AdamantRevMeta } from './meta-interfaces';
 import { uuid } from './utils/uuid';
 
-export class HydratorImpl extends Hydrator {
-    constructor(protected readonly id: AdamantId, protected readonly connectionManager: AdamantConnectionManager) {
+export class HydratorImpl<T> extends Hydrator<T> {
+    constructor(
+        protected readonly id: AdamantId,
+        protected readonly metadata: Metadata<T>,
+        protected readonly connectionManager: AdamantConnectionManager
+    ) {
         super();
     }
 
-    dehydrate<T>(
+    dehydrate(
         entity: T & AdamantEntityMeta,
-        metadata: Metadata<T>,
         options?: { includeRev?: boolean }
     ): PouchDB.Core.Document<T> & Partial<PouchDB.Core.RevisionIdMeta> {
         const doc: any = {};
@@ -30,11 +33,11 @@ export class HydratorImpl extends Hydrator {
             doc._rev = entity._rev;
         }
 
-        if (metadata.attachments && entity._attachments) {
+        if (this.metadata.attachments && entity._attachments) {
             doc._attachments = entity._attachments;
         }
 
-        for (const [property, annotation] of metadata.properties) {
+        for (const [property, annotation] of this.metadata.properties) {
             let value: any = entity[property as keyof T];
             /* instanbul ignore else */
             if (annotation instanceof RelationMetadata) {
@@ -53,7 +56,7 @@ export class HydratorImpl extends Hydrator {
                         }
                         doc[property] = rel;
                     } else if (annotation instanceof InlineMetadata) {
-                        doc[property] = this.connectionManager.getRepository(annotation.type).hydrator.dehydrate(value, relationMetadata);
+                        doc[property] = this.connectionManager.getRepository(annotation.type).hydrator.dehydrate(value);
                     }
                 }
             } else if (annotation instanceof PropertyMetadata) {
@@ -61,7 +64,7 @@ export class HydratorImpl extends Hydrator {
                     if (!value && annotation.strategy === IdStrategy.Uuid) {
                         entity[property as keyof T] = value = uuid() as any;
                     }
-                    doc._id = this.id.build(metadata.name!, metadata.idType, value as any);
+                    doc._id = this.id.build(this.metadata.name!, this.metadata.idType, value as any);
                 }
                 if (undefined === value && undefined !== annotation.default) {
                     entity[property as keyof T] = value = annotation.default as any;
@@ -77,10 +80,9 @@ export class HydratorImpl extends Hydrator {
         return doc as PouchDB.Core.Document<T> & Partial<PouchDB.Core.RevisionIdMeta>;
     }
 
-    async hydrate<T extends {}>(
+    async hydrate(
         entity: T,
-        data: PouchDB.Core.Document<T> & PouchDB.Core.GetMeta,
-        metadata: Metadata<T>,
+        data: PouchDB.Core.Document<T> & Partial<PouchDB.Core.GetMeta>,
         { depth = Infinity, circularCache = {} }: HydrateOptions = {}
     ): Promise<T & AdamantRevMeta> {
         if (data._id in circularCache) {
@@ -91,18 +93,17 @@ export class HydratorImpl extends Hydrator {
 
         markIdRev(entity, { id: data._id, rev: data._rev });
 
-        if (metadata.attachments) {
+        if (this.metadata.attachments) {
             Object.defineProperty(entity, '_attachments', { configurable: true, value: data._attachments });
         }
 
-        for (const [property, annotation] of metadata.properties) {
+        for (const [property, annotation] of this.metadata.properties) {
             const value: any = data[property as keyof T];
             if (null == value) {
                 entity[property as keyof T] = null!;
             } else {
                 /* istanbul ignore else */
                 if (annotation instanceof RelationMetadata) {
-                    const relationMetadata = this.connectionManager.getMetadata(annotation.type);
                     const relationRepository = this.connectionManager.getRepository(annotation.type);
 
                     /* istanbul ignore else */
@@ -131,11 +132,7 @@ export class HydratorImpl extends Hydrator {
                         }
                         entity[property as keyof T] = rel;
                     } else if (annotation instanceof InlineMetadata) {
-                        entity[property as keyof T] = await relationRepository.hydrator.hydrate(
-                            relationRepository.build(),
-                            value,
-                            relationMetadata
-                        );
+                        entity[property as keyof T] = await relationRepository.hydrator.hydrate(relationRepository.build(), value);
                     }
                 } else if (annotation instanceof PropertyMetadata) {
                     const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(entity), property);
@@ -149,14 +146,6 @@ export class HydratorImpl extends Hydrator {
         return entity as T & AdamantRevMeta;
     }
 }
-
-export const ADAMANT_HYDRATOR_IMPL_PROVIDER = {
-    provide: HydratorImpl,
-    useFactory(id: AdamantId, connectionManager: AdamantConnectionManager) {
-        return new HydratorImpl(id, connectionManager);
-    },
-    deps: [ADAMANT_ID, AdamantConnectionManager]
-};
 
 async function readAllWithCircularCache<T>(
     repo: AdamantRepository<T>,

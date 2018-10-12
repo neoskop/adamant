@@ -17,8 +17,8 @@ export class Bulk<T> {
         protected readonly db: PouchDB.Database<T>,
         protected readonly entityClass: Ctor<T>,
         protected readonly metadata: Metadata<T>,
-        protected readonly hydrator: Hydrator,
-        protected readonly validator: Validator
+        protected readonly hydrator: Hydrator<T>,
+        protected readonly validator: Validator<T>
     ) {}
 
     protected async bulk(entities: T[], operation: BulkOperation): Promise<(T & AdamantRevMeta & AdamantDeletedMeta)[]> {
@@ -32,9 +32,9 @@ export class Bulk<T> {
                     throw new Error(`Entity "${entity}" is not instanceof ${this.entityClass.name}`);
                 }
 
-                await this.validator.validate(entity, this.metadata);
+                await this.validator.validate(entity);
 
-                const doc: PouchDB.Core.ChangesMeta & PouchDB.Core.Document<T> = this.hydrator.dehydrate(entity, this.metadata, {
+                const doc: PouchDB.Core.ChangesMeta & PouchDB.Core.Document<T> = this.hydrator.dehydrate(entity, {
                     includeRev: operation === BulkOperation.Update || operation === BulkOperation.Delete
                 });
                 if (operation === BulkOperation.Delete) {
@@ -76,7 +76,13 @@ export class Bulk<T> {
 
 export const ADAMANT_BULK_PROVIDER = {
     provide: Bulk,
-    useFactory(db: PouchDB.Database<any>, entityClass: Ctor<any>, metadata: Metadata<any>, hydrator: Hydrator, validator: Validator) {
+    useFactory(
+        db: PouchDB.Database<any>,
+        entityClass: Ctor<any>,
+        metadata: Metadata<any>,
+        hydrator: Hydrator<any>,
+        validator: Validator<any>
+    ) {
         return new Bulk(db, entityClass, metadata, hydrator, validator);
     },
     deps: [ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA, Hydrator, Validator]

@@ -87,8 +87,10 @@ export class DefaultEntity {
 }
 
 describe('HydratorImpl', () => {
-    let metadata: Metadata<SimpleEntity>;
-    let hydrator: HydratorImpl;
+    let simpleHydrator: HydratorImpl<SimpleEntity>;
+    let complexHydrator: HydratorImpl<ComplexEntity>;
+    let uuidHydrator: HydratorImpl<UuidEntity>;
+    let defaultHydrator: HydratorImpl<DefaultEntity>;
     let getRepositorySpy: SinonSpy;
     let repositorySpyMap: Map<Ctor<any>, any>;
 
@@ -127,36 +129,34 @@ describe('HydratorImpl', () => {
             }
         };
         getRepositorySpy = spy(conn, 'getRepository');
-        metadata = new Metadata(SimpleEntity);
-        hydrator = new HydratorImpl(adamantIdFactory(), conn as any);
+        simpleHydrator = new HydratorImpl(adamantIdFactory(), new Metadata(SimpleEntity), conn as any);
+        complexHydrator = new HydratorImpl(adamantIdFactory(), new Metadata(ComplexEntity), conn as any);
+        uuidHydrator = new HydratorImpl(adamantIdFactory(), new Metadata(UuidEntity), conn as any);
+        defaultHydrator = new HydratorImpl(adamantIdFactory(), new Metadata(DefaultEntity), conn as any);
     });
 
     describe('hydrate', () => {
         it('should return a promise', () => {
-            expect(hydrator.hydrate(Object.create(SimpleEntity.prototype), { id: 'id', required: 'required' }, metadata)).to.be.instanceOf(
-                Promise
-            );
+            expect(
+                simpleHydrator.hydrate(Object.create(SimpleEntity.prototype), { _id: 'simple_2_id', id: 'id', required: 'required' })
+            ).to.be.instanceOf(Promise);
         });
 
         it('should hydrate properties', async () => {
-            expect(await hydrator.hydrate(Object.create(SimpleEntity.prototype), { id: 'id', required: 'required' }, metadata)).to.be.eql(
-                populate(new SimpleEntity(), { id: 'id', optional: null!, required: 'required' })
-            );
+            expect(
+                await simpleHydrator.hydrate(Object.create(SimpleEntity.prototype), { _id: 'simple_2_id', id: 'id', required: 'required' })
+            ).to.be.eql(populate(new SimpleEntity(), { id: 'id', optional: null!, required: 'required' }));
         });
 
         it('should hydrate relations', async () => {
-            const res = await hydrator.hydrate(
-                Object.create(ComplexEntity.prototype),
-                {
-                    _id: 'complex-entity_2_a',
-                    id: 'id',
-                    belongsTo: 'belongs-to_2_a',
-                    hasMany: ['has-many_2_a', 'has-many_2_b'],
-                    hasManyMap: { a: 'has-many-map_2_a', b: 'has-many-map_2_b' },
-                    inline: { key: 'foobar' }
-                },
-                new Metadata(ComplexEntity)
-            );
+            const res = await complexHydrator.hydrate(Object.create(ComplexEntity.prototype), {
+                _id: 'complex-entity_2_a',
+                id: 'id',
+                belongsTo: 'belongs-to_2_a',
+                hasMany: ['has-many_2_a', 'has-many_2_b'],
+                hasManyMap: { a: 'has-many-map_2_a', b: 'has-many-map_2_b' },
+                inline: { key: 'foobar' }
+            } as any);
 
             expect(getRepositorySpy).to.have.been.callCount(4);
             expect(repositorySpyMap.get(BelongsToEntity)._read).to.have.been.calledOnceWith('belongs-to_2_a');
@@ -192,9 +192,7 @@ describe('HydratorImpl', () => {
 
     describe('dehydrate', () => {
         it('should dehydrate properties', () => {
-            expect(
-                hydrator.dehydrate(populate(new SimpleEntity(), { id: 'id', required: 'required' }), new Metadata(SimpleEntity))
-            ).to.be.eql({
+            expect(simpleHydrator.dehydrate(populate(new SimpleEntity(), { id: 'id', required: 'required' }))).to.be.eql({
                 _id: 'simple-entity_2_id',
                 id: 'id',
                 required: 'required'
@@ -204,7 +202,7 @@ describe('HydratorImpl', () => {
         it('should include _rev when desired', () => {
             const entity = populate(new SimpleEntity(), { id: 'id', required: 'required' });
             markIdRev(entity, { id: 'simple-entity_2_id', rev: '1-123456' });
-            expect(hydrator.dehydrate(entity, new Metadata(SimpleEntity), { includeRev: true })).to.be.eql({
+            expect(simpleHydrator.dehydrate(entity, { includeRev: true })).to.be.eql({
                 _id: 'simple-entity_2_id',
                 _rev: '1-123456',
                 id: 'id',
@@ -221,7 +219,7 @@ describe('HydratorImpl', () => {
                 inline: populate(new InlineEntityImpl(), { key: 'foobar' })
             });
 
-            expect(hydrator.dehydrate(entity, new Metadata(ComplexEntity))).to.be.eql({
+            expect(complexHydrator.dehydrate(entity)).to.be.eql({
                 _id: 'complex-entity_2_id',
                 id: 'id',
                 belongsTo: 'belongs-to_2_a',
@@ -233,7 +231,7 @@ describe('HydratorImpl', () => {
 
         it('should create uuid if undefined and write it in entity', () => {
             const entity = new UuidEntity();
-            const doc = hydrator.dehydrate(entity, new Metadata(UuidEntity));
+            const doc = uuidHydrator.dehydrate(entity);
 
             expect(doc).to.have.keys('_id', 'id');
             expect(doc.id)
@@ -245,7 +243,7 @@ describe('HydratorImpl', () => {
 
         it('should keep uuid if existing', () => {
             const entity = populate(new UuidEntity(), { id: '2882cd99-db2-ef3-a29-29fc49912abd64b' });
-            const doc = hydrator.dehydrate(entity, new Metadata(UuidEntity));
+            const doc = uuidHydrator.dehydrate(entity);
 
             expect(doc).to.have.keys('_id', 'id');
             expect(doc.id).to.be.equal('2882cd99-db2-ef3-a29-29fc49912abd64b');
@@ -255,7 +253,7 @@ describe('HydratorImpl', () => {
         it('should use default value and write it back to entity', () => {
             const entity = new DefaultEntity();
             entity.id = 'id';
-            const doc = hydrator.dehydrate(entity, new Metadata(DefaultEntity));
+            const doc = defaultHydrator.dehydrate(entity);
 
             expect(doc).to.be.eql({ _id: 'default_2_id', id: 'id', def: 'defaultValue' });
             expect(entity.def).to.be.equal(doc.def);
