@@ -22,6 +22,19 @@ import {
 import { AdamantDeletedMeta, AdamantEntityMeta, AdamantRevMeta } from './meta-interfaces';
 
 export class AdamantRepository<T extends {}> {
+    readonly id = {
+        head: () => {
+            return this.adamantId.head(this.metadata.name!);
+        },
+        tail: () => {
+            return this.adamantId.tail(this.metadata.name!);
+        },
+        build: (id: string | number) => {
+            return this.adamantId.build(this.metadata.name!, this.metadata.idType, id);
+        },
+        parse: (id: string) => this.adamantId.parse(id)
+    };
+
     protected readonly queryBatcher = new ReadQueryBatcher(this.db);
 
     constructor(
@@ -29,7 +42,7 @@ export class AdamantRepository<T extends {}> {
         protected readonly entityClass: Ctor<T>,
         protected readonly metadata: Metadata<T>,
         protected readonly equal: EqualChecker,
-        protected readonly id: AdamantId,
+        protected readonly adamantId: AdamantId,
         public readonly bulk: Bulk<T>,
         public readonly hydrator: Hydrator,
         public readonly validator: Validator
@@ -56,7 +69,7 @@ export class AdamantRepository<T extends {}> {
 
         const doc = this.hydrator.dehydrate(entity, this.metadata);
 
-        const result = await this._upsert(this.id.build(this.metadata.name!, this.metadata.idType, entity[this.metadata.id] as any), doc);
+        const result = await this._upsert(this.id.build(entity[this.metadata.id] as any), doc);
 
         markIdRev(entity, result);
 
@@ -109,7 +122,7 @@ export class AdamantRepository<T extends {}> {
     }
 
     read(id: number | string, options?: HydrateOptions): Promise<T & AdamantRevMeta> {
-        return this._read(this.id.build(this.metadata.name!, this.metadata.idType, id), options);
+        return this._read(this.id.build(id), options);
     }
 
     /** @internal */
@@ -139,10 +152,10 @@ export class AdamantRepository<T extends {}> {
         } as any;
 
         if (ids) {
-            opt.keys = ids.map(id => this.id.build(this.metadata.name!, this.metadata.idType, id)).sort((a, b) => a.localeCompare(b));
+            opt.keys = ids.map(id => this.id.build(id)).sort((a, b) => a.localeCompare(b));
         } else {
-            opt.startkey = this.id.head(this.metadata.name!);
-            opt.endkey = this.id.tail(this.metadata.name!);
+            opt.startkey = this.id.head();
+            opt.endkey = this.id.tail();
         }
 
         return this._readAll(opt, options);
@@ -172,7 +185,7 @@ export class AdamantRepository<T extends {}> {
     }
 
     query(): QueryBuilder<T> {
-        return new QueryBuilder<T>(this, this.id.head(this.metadata.name!), this.id.tail(this.metadata.name!));
+        return new QueryBuilder<T>(this, this.id.head(), this.id.tail());
     }
 
     async executeQuery(query: QueryBuilder<T>, options?: HydrateOptions): Promise<(T & AdamantRevMeta)[]> {
