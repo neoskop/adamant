@@ -113,7 +113,9 @@ for (const [name, factory] of new Map<string, Function>([
             });
 
             it('it should reject invalid design doc class when persisting', async () => {
-                await expect(repository.persistDesignDoc({})).to.eventually.rejectedWith('Design doc annotation required');
+                await expect(repository.persistDesignDoc({})).to.eventually.rejectedWith(
+                    'Missing metadata \'entity\' for design doc "Object"'
+                );
                 await expect(repository.persistDesignDoc(new TestDesignDoc2())).to.eventually.rejectedWith('Invalid design doc entity');
             });
 
@@ -198,7 +200,9 @@ for (const [name, factory] of new Map<string, Function>([
             });
 
             it('should reject invalid design doc class for querying', async () => {
-                await expect(repository.view(Function, 'name')).to.eventually.rejectedWith('Design doc annotation required');
+                await expect(repository.view(Function, 'name')).to.eventually.rejectedWith(
+                    'Missing metadata \'entity\' for design doc "Function"'
+                );
                 await expect(repository.view(TestDesignDoc2, 'simple')).to.eventually.rejectedWith('Invalid design doc entity');
                 await expect(repository.view(TestDesignDoc, 'invalid' as any)).to.eventually.rejectedWith('Unknown view "invalid"');
             });

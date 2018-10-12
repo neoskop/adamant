@@ -1,6 +1,6 @@
 import { ADAMANT_REPOSITORY_PROVIDER, AdamantRepository } from './repository';
 import { Ctor } from './utils/metadata';
-import { EntityMetadataCollection } from './metadata';
+import { DesignDocMetadataCollection, EntityMetadataCollection } from './metadata';
 import { ADAMANT_BULK_PROVIDER } from './bulk';
 import { Hydrator } from './hydrator';
 import { Validator } from './validator';
@@ -35,7 +35,6 @@ export function createAdamantConnection(factory: ConnectionFactory): AdamantConn
 export class AdamantConnectionManager {
     protected readonly connections = new Map<string, PouchDB.Database<any>>();
     protected readonly repositories = new Map<Ctor<any>, AdamantRepository<any>>();
-    // protected readonly metadata = new Map<Ctor<any>, EntityMetadataCollection<any>>();
 
     constructor(
         protected readonly connectionFactory: ConnectionFactory,
@@ -108,6 +107,10 @@ export class AdamantConnectionManager {
 
     getMetadata<T>(entityClass: Ctor<T>): EntityMetadataCollection<T> {
         return EntityMetadataCollection.create(entityClass);
+    }
+
+    getDesignDocMetadata<T>(designDocClass: Ctor<T>): DesignDocMetadataCollection<T> {
+        return DesignDocMetadataCollection.create(designDocClass);
     }
 }
 

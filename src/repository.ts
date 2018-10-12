@@ -1,15 +1,11 @@
 import { Validator } from './validator';
-import { Ctor, getAllPropertyMetadata, getClassMetadata, getPropertyMetadata, populate } from './utils/metadata';
+import { Ctor, populate } from './utils/metadata';
 import { HydrateOptions, Hydrator } from './hydrator';
-import { EntityMetadataCollection } from './metadata';
+import { DesignDocMetadataCollection, EntityMetadataCollection } from './metadata';
 import { Bulk } from './bulk';
 import { markDeleted, markIdRev } from './utils/marks';
 import { ReadQueryBatcher } from './read-query-batcher';
 import { QueryBuilder } from './query-builder';
-import { DesignDocMetadata } from './annotations/design-doc';
-import { ViewMetadata } from './annotations/view';
-import { FilterMetadata } from './annotations/filter';
-import { ValidateDocMetadata } from './annotations/validate-doc';
 import {
     ADAMANT_CONNECTION,
     ADAMANT_ENTITY_CLASS,
@@ -198,14 +194,9 @@ export class AdamantRepository<T extends {}> {
     }
 
     async persistDesignDoc<T extends {}>(doc: T): Promise<void> {
-        const classAnnotations = getClassMetadata(doc.constructor, DesignDocMetadata);
-        const propertyAnnotations = getAllPropertyMetadata<ViewMetadata | FilterMetadata | ValidateDocMetadata>(doc.constructor);
+        const metadata = DesignDocMetadataCollection.create<T>(doc.constructor as any);
 
-        if (1 !== classAnnotations.length) {
-            throw new Error(`Design doc annotation required`);
-        }
-
-        if (classAnnotations[0].entity !== this.entityClass) {
+        if (metadata.entity !== this.entityClass) {
             throw new Error(`Invalid design doc entity`);
         }
 
@@ -215,35 +206,34 @@ export class AdamantRepository<T extends {}> {
             filters: { [key: string]: string };
             validate_doc_update?: string;
         } = {
-            _id: `_design/${classAnnotations[0].name || this.metadata.name}`,
+            _id: `_design/${metadata.name}`,
             views: {},
             filters: {}
         };
 
-        for (const [property, annotations] of propertyAnnotations) {
-            for (const annotation of annotations) {
-                /* istanbul ignore else */
-                if (annotation instanceof ViewMetadata) {
-                    const value: any = doc[property as keyof T];
-                    const type = typeof value;
+        for (const view of metadata.views) {
+            const value: any = doc[view];
+            const type = typeof value;
 
-                    /* istanbul ignore else */
-                    if (type === 'string' || type === 'function') {
-                        document.views[property as string] = {
-                            map: value.toString()
-                        };
-                    } else if (type === 'object') {
-                        document.views[property as string] = {
-                            map: value.map.toString(),
-                            reduce: value.reduce && value.reduce.toString()
-                        };
-                    }
-                } else if (annotation instanceof FilterMetadata) {
-                    document.filters[property as string] = doc[property as keyof T].toString();
-                } else if (annotation instanceof ValidateDocMetadata) {
-                    document.validate_doc_update = doc[property as keyof T].toString();
-                }
+            /* istanbul ignore else */
+            if (type === 'string' || type === 'function') {
+                document.views[view as string] = {
+                    map: value.toString()
+                };
+            } else if (type === 'object') {
+                document.views[view as string] = {
+                    map: value.map.toString(),
+                    reduce: value.reduce && value.reduce.toString()
+                };
             }
+        }
+
+        for (const filter of metadata.filters) {
+            document.filters[filter as string] = doc[filter].toString();
+        }
+
+        if (metadata.validateDoc) {
+            document.validate_doc_update = doc[metadata.validateDoc].toString();
         }
 
         await this.db.upsert<any>(document._id, existingDoc => {
@@ -263,26 +253,20 @@ export class AdamantRepository<T extends {}> {
         name: P,
         { depth, circularCache, ...options }: HydrateOptions & PouchDB.Query.Options<T, any> = {}
     ): Promise<(T & AdamantRevMeta)[]> {
-        const classAnnotation = getClassMetadata(designDoc, DesignDocMetadata)[0];
+        const metadata = DesignDocMetadataCollection.create(designDoc);
 
-        if (!classAnnotation) {
-            throw new Error(`Design doc annotation required`);
-        }
-
-        if (classAnnotation.entity !== this.entityClass) {
+        if (metadata.entity !== this.entityClass) {
             throw new Error(`Invalid design doc entity`);
         }
 
-        const propertyAnnotations = getPropertyMetadata(designDoc, name as string, ViewMetadata);
-
-        if (0 === propertyAnnotations.length) {
+        if (!metadata.views.has(name)) {
             throw new Error(`Unknown view "${name}"`);
         }
 
         options.include_docs = true;
 
         return await Promise.all(
-            (await this.rawView(`${classAnnotation.name}/${name}`, options)).rows.map(row => row.doc!).map(async doc =>
+            (await this.rawView(`${metadata.name}/${name}`, options)).rows.map(row => row.doc!).map(async doc =>
                 this.hydrator.hydrate(Object.create(this.entityClass.prototype), doc, {
                     depth,
                     circularCache

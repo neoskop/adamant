@@ -2,13 +2,17 @@ import 'mocha';
 import { expect } from 'chai';
 import { Entity } from './annotations/entity';
 import { Id, IdMetadata, IdStrategy } from './annotations/id';
-import { EntityMetadataCollection } from './metadata';
+import { DesignDocMetadataCollection, EntityMetadataCollection } from './metadata';
 import { Property, PropertyMetadata } from './annotations/property';
 import { BelongsTo, BelongsToMetadata } from './annotations/belongs-to';
 import { Inline, InlineMetadata } from './annotations/inline';
 import { HasMany, HasManyMetadata } from './annotations/has-many';
 import { HasManyMap, HasManyMapMetadata } from './annotations/has-many-map';
 import { InlineEntity } from './annotations/inline-entity';
+import { DesignDoc } from './annotations/design-doc';
+import { View } from './annotations/view';
+import { Filter } from './annotations/filter';
+import { ValidateDoc } from './annotations/validate-doc';
 
 @Entity('default-entity')
 export class DefaultMetadataFixture {
@@ -60,7 +64,19 @@ export class InlineTestEntity {
     key?: string;
 }
 
-describe('Metadata', () => {
+@DesignDoc(DefaultMetadataFixture)
+class TestDesignDoc {
+    @View()
+    exampleView = 'a';
+
+    @Filter()
+    exampleFilter = 'b';
+
+    @ValidateDoc()
+    exampleValidateDoc = 'c';
+}
+
+describe('EntityMetadataCollection', () => {
     it('create create default metadata', () => {
         const metadata = EntityMetadataCollection.create(DefaultMetadataFixture);
 
@@ -117,5 +133,23 @@ describe('Metadata', () => {
         expect(metadata.properties.get('hasManyMap')).to.be.eql(
             Object.assign(new HasManyMapMetadata(), { type: Explicit, required: false })
         );
+    });
+});
+
+describe('EntityMetadataCollection', () => {
+    it('create create default metadata', () => {
+        const metadata = DesignDocMetadataCollection.create(TestDesignDoc);
+
+        expect(metadata).to.be.instanceOf(DesignDocMetadataCollection);
+    });
+
+    it('should provide full metadata', () => {
+        const metadata = DesignDocMetadataCollection.create(TestDesignDoc);
+
+        expect(metadata.entity).to.be.equal(DefaultMetadataFixture);
+        expect(metadata.name).to.be.equal('default-entity');
+        expect(metadata.views).to.be.eql(new Set(['exampleView']));
+        expect(metadata.filters).to.be.eql(new Set(['exampleFilter']));
+        expect(metadata.validateDoc).to.be.equal('exampleValidateDoc');
     });
 });

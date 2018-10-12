@@ -1,12 +1,4 @@
-import {
-    AdamantConnectionManager,
-    DesignDocMetadata,
-    getClassMetadata,
-    FilterMetadata,
-    ValidateDocMetadata,
-    ViewMetadata,
-    getAllPropertyMetadata
-} from '@neoskop/adamant';
+import { AdamantConnectionManager, DesignDocMetadataCollection } from '@neoskop/adamant';
 import { EventEmitter, Inject, Injectable, Type } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ADAMANT_DESIGN_DOCS } from './injector-tokens';
@@ -77,45 +69,34 @@ export class AdamantInitializationService {
 
     async persist(): Promise<void> {
         for (const designDoc of this.designDocs) {
-            const classAnnotations = getClassMetadata(designDoc.constructor, DesignDocMetadata);
-
-            if (1 !== classAnnotations.length) {
-                throw new Error(`Design doc annotation required`);
-            }
+            const metadata = DesignDocMetadataCollection.create(designDoc.constructor as any);
+            // const classAnnotations = getClassMetadata(designDoc.constructor, DesignDocMetadata);
+            //
+            // if (1 !== classAnnotations.length) {
+            //     throw new Error(`Design doc annotation required`);
+            // }
 
             try {
-                this.emitter.emit(new AdamantPersistDesignDocStart(classAnnotations[0].entity, designDoc));
-                await this.connectionManager.getRepository(classAnnotations[0].entity).persistDesignDoc(designDoc);
-                this.emitter.emit(new AdamantPersistDesignDocEnd(classAnnotations[0].entity, designDoc));
+                this.emitter.emit(new AdamantPersistDesignDocStart(metadata.entity, designDoc));
+                await this.connectionManager.getRepository(metadata.entity).persistDesignDoc(designDoc);
+                this.emitter.emit(new AdamantPersistDesignDocEnd(metadata.entity, designDoc));
             } catch (e) {
-                this.emitter.emit(new AdamantPersistDesignDocError(classAnnotations[0].entity, designDoc, e));
+                this.emitter.emit(new AdamantPersistDesignDocError(metadata.entity, designDoc, e));
             }
         }
     }
 
     async warmup(): Promise<void> {
         for (const designDoc of this.designDocs) {
-            const classAnnotations = getClassMetadata(designDoc.constructor, DesignDocMetadata);
+            const metadata = DesignDocMetadataCollection.create(designDoc.constructor as any);
 
-            if (1 !== classAnnotations.length) {
-                throw new Error(`Design doc annotation required`);
-            }
-
-            const propertyAnnotations = getAllPropertyMetadata<ViewMetadata | FilterMetadata | ValidateDocMetadata>(designDoc.constructor);
-
-            for (const [property, annotations] of propertyAnnotations) {
-                for (const annotation of annotations) {
-                    if (annotation instanceof ViewMetadata) {
-                        try {
-                            this.emitter.emit(new AdamantWarmupViewStart(classAnnotations[0].entity, designDoc as any, property));
-                            await this.connectionManager
-                                .getRepository(classAnnotations[0].entity)
-                                .view<any, any>(designDoc.constructor as any, property);
-                            this.emitter.emit(new AdamantWarmupViewEnd(classAnnotations[0].entity, designDoc as any, property));
-                        } catch (e) {
-                            this.emitter.emit(new AdamantWarmupViewError(classAnnotations[0].entity, designDoc as any, property, e));
-                        }
-                    }
+            for (const view of metadata.views) {
+                try {
+                    this.emitter.emit(new AdamantWarmupViewStart(metadata.entity, designDoc as any, view));
+                    await this.connectionManager.getRepository(metadata.entity).view(designDoc.constructor as any, view);
+                    this.emitter.emit(new AdamantWarmupViewEnd(metadata.entity, designDoc as any, view));
+                } catch (e) {
+                    this.emitter.emit(new AdamantWarmupViewError(metadata.entity, designDoc as any, view, e));
                 }
             }
         }

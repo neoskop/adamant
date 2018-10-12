@@ -10,8 +10,13 @@ import { HasManyMapMetadata } from './annotations/has-many-map';
 import { InlineMetadata } from './annotations/inline';
 import { InlineEntityMetadata } from './annotations/inline-entity';
 import { AdamantInjector } from './injector';
+import { DesignDocMetadata } from './annotations/design-doc';
+import { FilterMetadata } from './annotations/filter';
+import { ValidateDocMetadata } from './annotations/validate-doc';
+import { ViewMetadata } from './annotations/view';
 
 const ENTITY_METADATA_CACHE = new WeakMap<Ctor<any>, EntityMetadataCollection<any>>();
+const DESIGN_DOC_METADATA_CACHE = new WeakMap<Ctor<any>, DesignDocMetadataCollection<any>>();
 
 export class EntityMetadataCollection<T> {
     readonly inline: boolean = false;
@@ -86,6 +91,63 @@ export class EntityMetadataCollection<T> {
         for (const key of (this.inline ? [] : ['id', 'idStrategy', 'name', 'attachments']) as (keyof EntityMetadataCollection<T>)[]) {
             if (null == this[key]) {
                 throw new Error(`Missing metadata '${key}' for entity "${this.entity.name}"`);
+            }
+        }
+    }
+}
+
+export class DesignDocMetadataCollection<T> {
+    readonly entity!: Ctor<any>;
+    readonly name!: string;
+    readonly validateDoc?: keyof T;
+    readonly views = new Set<keyof T>();
+    readonly filters = new Set<keyof T>();
+
+    static create<E>(entity: Ctor<E>): DesignDocMetadataCollection<E> {
+        if (!DESIGN_DOC_METADATA_CACHE.has(entity)) {
+            DESIGN_DOC_METADATA_CACHE.set(entity, new DesignDocMetadataCollection<E>(entity));
+        }
+
+        return DESIGN_DOC_METADATA_CACHE.get(entity)!;
+    }
+
+    private constructor(protected readonly designDoc: Ctor<T>) {
+        this.parse();
+        this.assert();
+    }
+
+    protected parse() {
+        const classMetadata = getClassMetadata<EntityMetadata | InlineEntityMetadata>(this.designDoc);
+        const propertyMetadata = getAllPropertyMetadata<ViewMetadata | FilterMetadata | ValidateDocMetadata>(this.designDoc);
+
+        for (const annotation of classMetadata) {
+            if (annotation instanceof DesignDocMetadata) {
+                Object.assign(this, annotation);
+                if (!this.name) {
+                    (this as any).name = EntityMetadataCollection.create(this.entity).name;
+                }
+            }
+        }
+
+        for (const [property, annotations] of propertyMetadata) {
+            for (const annotation of annotations) {
+                if (annotation instanceof ViewMetadata) {
+                    this.views.add(property as keyof T);
+                }
+                if (annotation instanceof FilterMetadata) {
+                    this.filters.add(property as keyof T);
+                }
+                if (annotation instanceof ValidateDocMetadata) {
+                    (this as any).validateDoc = property;
+                }
+            }
+        }
+    }
+
+    protected assert() {
+        for (const key of ['entity'] as (keyof DesignDocMetadataCollection<T>)[]) {
+            if (null == this[key]) {
+                throw new Error(`Missing metadata '${key}' for design doc "${this.designDoc.name}"`);
             }
         }
     }
