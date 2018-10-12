@@ -8,7 +8,7 @@
     "license": "MIT",
     "private": false,
     "scripts": {
-        "test": "mocha -r ts-node/register -r tsconfig-paths/register 'src/**/*.spec.ts' 'tests/**/*.spec.ts'",
+        "test": "TS_NODE_CACHE=false mocha -r ts-node/register -r tsconfig-paths/register 'src/**/*.spec.ts' 'tests/**/*.spec.ts'",
         "coverage": "nyc -e '.ts' -r html -r text npm test",
         "prebuild": "npm run coverage",
         "build": "ng-packagr -p src/package.json",
