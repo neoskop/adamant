@@ -1,5 +1,5 @@
-import { RelationMetadata } from './relation';
 import { Ctor, populate, pushPropertyMetadata } from '../utils/metadata';
+import { RelationMetadata } from './relation';
 
 export class HasManyMapMetadata<T> extends RelationMetadata<T> {}
 

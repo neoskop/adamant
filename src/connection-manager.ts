@@ -1,10 +1,8 @@
-import { ADAMANT_REPOSITORY_PROVIDER, AdamantRepository } from './repository';
-import { Ctor } from './utils/metadata';
-import { DesignDocMetadataCollection, EntityMetadataCollection } from './metadata';
 import { ADAMANT_BULK_PROVIDER } from './bulk';
+import { adamantIdFactory, equalCheckerFactory } from './factories';
 import { Hydrator } from './hydrator';
-import { Validator } from './validator';
-import { ValidatorImpl } from './validator-impl';
+import { HydratorImpl } from './hydrator-impl';
+import { ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY, AdamantInjector, createInjector } from './injector';
 import {
     ADAMANT_CONNECTION,
     ADAMANT_CONNECTION_FACTORY,
@@ -15,9 +13,11 @@ import {
     AdamantId,
     ConnectionFactory
 } from './injector-tokens';
-import { adamantIdFactory, equalCheckerFactory } from './factories';
-import { ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY, AdamantInjector, createInjector } from './injector';
-import { HydratorImpl } from './hydrator-impl';
+import { DesignDocMetadataCollection, EntityMetadataCollection } from './metadata';
+import { ADAMANT_REPOSITORY_PROVIDER, AdamantRepository } from './repository';
+import { Ctor } from './utils/metadata';
+import { Validator } from './validator';
+import { ValidatorImpl } from './validator-impl';
 
 export function createAdamantConnection(factory: ConnectionFactory): AdamantConnectionManager {
     const injector = createInjector({

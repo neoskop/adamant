@@ -1,5 +1,5 @@
-import { populate, pushPropertyMetadata } from '../utils/metadata';
 import 'reflect-metadata';
+import { populate, pushPropertyMetadata } from '../utils/metadata';
 import { PropertyMetadata, Type } from './property';
 
 export enum IdStrategy {

@@ -1,16 +1,21 @@
-import 'mocha';
-import { Entity } from '../src/annotations/entity';
-import { Id } from '../src/annotations/id';
-import { MemoryPouchDB } from './pouchdb';
-import { AdamantConnectionManager, createAdamantConnection } from '../src/connection-manager';
 import { expect } from 'chai';
-import { AdamantRepository } from '../src/repository';
-import { DesignDoc } from '../src/annotations/design-doc';
-import { View } from '../src/annotations/view';
-import { Property } from '../src/annotations/property';
-import { Filter } from '../src/annotations/filter';
-import { ValidateDoc } from '../src/annotations/validate-doc';
-import { createAngularInjector, createInjectionJsInjector, setInjectorFactory } from '../src/injector';
+import 'mocha';
+import {
+    AdamantConnectionManager,
+    AdamantRepository,
+    createAdamantConnection,
+    createAngularInjector,
+    createInjectionJsInjector,
+    DesignDoc,
+    Entity,
+    Filter,
+    Id,
+    Property,
+    setInjectorFactory,
+    ValidateDoc,
+    View
+} from '../src';
+import { MemoryPouchDB } from './pouchdb';
 
 @Entity('test')
 class TestEntity {

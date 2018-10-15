@@ -1,12 +1,17 @@
-import 'mocha';
-import { Entity } from '../src/annotations/entity';
-import { Id } from '../src/annotations/id';
-import { Property } from '../src/annotations/property';
-import { MemoryPouchDB } from './pouchdb';
-import { AdamantConnectionManager, createAdamantConnection } from '../src/connection-manager';
 import { expect } from 'chai';
-import { AdamantRepository } from '../src/repository';
-import { createAngularInjector, createInjectionJsInjector, setInjectorFactory } from '../src/injector';
+import 'mocha';
+import {
+    AdamantConnectionManager,
+    AdamantRepository,
+    createAdamantConnection,
+    createAngularInjector,
+    createInjectionJsInjector,
+    Entity,
+    Id,
+    Property,
+    setInjectorFactory
+} from '../src';
+import { MemoryPouchDB } from './pouchdb';
 
 @Entity('test')
 class TestEntity {

@@ -1,7 +1,7 @@
-import 'mocha';
 import { expect, use } from 'chai';
+import 'mocha';
 import * as sinon from 'sinon';
-import { ReadQueryBatcher } from './read-query-batcher';
+import { ReadQueryBatcher } from '.';
 
 use(require('sinon-chai'));
 use(require('chai-as-promised'));

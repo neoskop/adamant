@@ -1,7 +1,7 @@
-import { populate, pushClassMetadata } from '../utils/metadata';
 import { Hydrator } from '../hydrator';
-import { Validator } from '../validator';
 import { AdamantInjector } from '../injector';
+import { populate, pushClassMetadata } from '../utils/metadata';
+import { Validator } from '../validator';
 
 export class InlineEntityMetadata {
     inline!: true;

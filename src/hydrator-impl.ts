@@ -1,17 +1,17 @@
-import { PropertyMetadata, Type } from './annotations/property';
-import { InlineMetadata } from './annotations/inline';
+import { BelongsToMetadata } from './annotations/belongs-to';
+import { HasManyMetadata } from './annotations/has-many';
 import { HasManyMapMetadata } from './annotations/has-many-map';
-import { markIdRev } from './utils/marks';
-import { HydrateOptions, Hydrator } from './hydrator';
-import { AdamantRepository } from './repository';
+import { IdMetadata, IdStrategy } from './annotations/id';
+import { InlineMetadata } from './annotations/inline';
+import { PropertyMetadata, Type } from './annotations/property';
 import { RelationMetadata } from './annotations/relation';
 import { AdamantConnectionManager } from './connection-manager';
-import { HasManyMetadata } from './annotations/has-many';
-import { EntityMetadataCollection } from './metadata';
-import { BelongsToMetadata } from './annotations/belongs-to';
-import { IdMetadata, IdStrategy } from './annotations/id';
+import { HydrateOptions, Hydrator } from './hydrator';
 import { AdamantId } from './injector-tokens';
 import { AdamantEntityMeta, AdamantRevMeta } from './meta-interfaces';
+import { EntityMetadataCollection } from './metadata';
+import { AdamantRepository } from './repository';
+import { markIdRev } from './utils/marks';
 import { uuid } from './utils/uuid';
 
 export class HydratorImpl<T> extends Hydrator<T> {

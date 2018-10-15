@@ -1,15 +1,21 @@
-import 'mocha';
-import { Entity } from '../src/annotations/entity';
-import { Id } from '../src/annotations/id';
-import { MemoryPouchDB } from './pouchdb';
-import { AdamantConnectionManager, createAdamantConnection } from '../src/connection-manager';
 import { expect } from 'chai';
-import { AdamantRepository } from '../src/repository';
-import { BelongsTo } from '../src/annotations/belongs-to';
-import { HasMany } from '../src/annotations/has-many';
-import { HasManyMap } from '../src/annotations/has-many-map';
-import { createAngularInjector, createInjectionJsInjector, forwardRef, setInjectorFactory } from '../src/injector';
+import 'mocha';
 import { SinonSpy, spy } from 'sinon';
+import {
+    AdamantConnectionManager,
+    AdamantRepository,
+    BelongsTo,
+    createAdamantConnection,
+    createAngularInjector,
+    createInjectionJsInjector,
+    Entity,
+    forwardRef,
+    HasMany,
+    HasManyMap,
+    Id,
+    setInjectorFactory
+} from '../src';
+import { MemoryPouchDB } from './pouchdb';
 
 @Entity('rel')
 class RelEntity {

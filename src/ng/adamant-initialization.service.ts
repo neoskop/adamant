@@ -1,5 +1,5 @@
-import { AdamantConnectionManager, DesignDocMetadataCollection } from '@neoskop/adamant';
 import { EventEmitter, Inject, Injectable, Type } from '@angular/core';
+import { AdamantConnectionManager, DesignDocMetadataCollection } from '@neoskop/adamant';
 import { Observable } from 'rxjs';
 import { ADAMANT_DESIGN_DOCS } from './injector-tokens';
 

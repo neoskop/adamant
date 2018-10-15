@@ -1,10 +1,10 @@
 import { Hydrator } from './hydrator';
-import { Validator } from './validator';
-import { Ctor } from './utils/metadata';
 import { ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA } from './injector-tokens';
-import { markDeleted, markIdRev } from './utils/marks';
-import { EntityMetadataCollection } from './metadata';
 import { AdamantDeletedMeta, AdamantRevMeta } from './meta-interfaces';
+import { EntityMetadataCollection } from './metadata';
+import { markDeleted, markIdRev } from './utils/marks';
+import { Ctor } from './utils/metadata';
+import { Validator } from './validator';
 
 export enum BulkOperation {
     Create = 'create',

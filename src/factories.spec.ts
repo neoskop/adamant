@@ -1,7 +1,6 @@
-import 'mocha';
 import { expect } from 'chai';
-import { adamantIdFactory } from './factories';
-import { AdamantId } from './injector-tokens';
+import 'mocha';
+import { AdamantId, adamantIdFactory } from '.';
 
 describe('adamantIdFactory', () => {
     let id: AdamantId;

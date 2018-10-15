@@ -1,11 +1,5 @@
-import { Validator } from './validator';
-import { Ctor, populate } from './utils/metadata';
-import { HydrateOptions, Hydrator } from './hydrator';
-import { DesignDocMetadataCollection, EntityMetadataCollection } from './metadata';
 import { Bulk } from './bulk';
-import { markDeleted, markIdRev } from './utils/marks';
-import { ReadQueryBatcher } from './read-query-batcher';
-import { QueryBuilder } from './query-builder';
+import { HydrateOptions, Hydrator } from './hydrator';
 import {
     ADAMANT_CONNECTION,
     ADAMANT_ENTITY_CLASS,
@@ -16,6 +10,12 @@ import {
     EqualChecker
 } from './injector-tokens';
 import { AdamantDeletedMeta, AdamantEntityMeta, AdamantRevMeta } from './meta-interfaces';
+import { DesignDocMetadataCollection, EntityMetadataCollection } from './metadata';
+import { QueryBuilder } from './query-builder';
+import { ReadQueryBatcher } from './read-query-batcher';
+import { markDeleted, markIdRev } from './utils/marks';
+import { Ctor, populate } from './utils/metadata';
+import { Validator } from './validator';
 
 export class AdamantRepository<T extends {}> {
     readonly id = {

@@ -1,5 +1,5 @@
-import { Validator } from './validator';
 import { EntityMetadataCollection } from './metadata';
+import { Validator } from './validator';
 
 export class ValidatorImpl<T> extends Validator<T> {
     constructor(protected readonly metadata: EntityMetadataCollection<T>) {

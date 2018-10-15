@@ -1,19 +1,19 @@
-import { Ctor, getAllPropertyMetadata, getClassMetadata } from './utils/metadata';
-import { IdMetadata, IdStrategy } from './annotations/id';
-import { PropertyMetadata } from './annotations/property';
-import { EntityMetadata } from './annotations/entity';
-import { Hydrator } from './hydrator';
-import { Validator } from './validator';
 import { BelongsToMetadata } from './annotations/belongs-to';
+import { DesignDocMetadata } from './annotations/design-doc';
+import { EntityMetadata } from './annotations/entity';
+import { FilterMetadata } from './annotations/filter';
 import { HasManyMetadata } from './annotations/has-many';
 import { HasManyMapMetadata } from './annotations/has-many-map';
+import { IdMetadata, IdStrategy } from './annotations/id';
 import { InlineMetadata } from './annotations/inline';
 import { InlineEntityMetadata } from './annotations/inline-entity';
-import { AdamantInjector } from './injector';
-import { DesignDocMetadata } from './annotations/design-doc';
-import { FilterMetadata } from './annotations/filter';
+import { PropertyMetadata } from './annotations/property';
 import { ValidateDocMetadata } from './annotations/validate-doc';
 import { ViewMetadata } from './annotations/view';
+import { Hydrator } from './hydrator';
+import { AdamantInjector } from './injector';
+import { Ctor, getAllPropertyMetadata, getClassMetadata } from './utils/metadata';
+import { Validator } from './validator';
 
 const ENTITY_METADATA_CACHE = new WeakMap<Ctor<any>, EntityMetadataCollection<any>>();
 const DESIGN_DOC_METADATA_CACHE = new WeakMap<Ctor<any>, DesignDocMetadataCollection<any>>();

@@ -1,6 +1,6 @@
-import { Ctor } from './utils/metadata';
 import { InjectionToken } from './injector';
 import { EntityMetadataCollection } from './metadata';
+import { Ctor } from './utils/metadata';
 
 export interface EqualChecker {
     (a: any, b: any): boolean;

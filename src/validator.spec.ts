@@ -1,10 +1,6 @@
-import 'mocha';
 import { expect, use } from 'chai';
-import { Entity } from './annotations/entity';
-import { Id } from './annotations/id';
-import { EntityMetadataCollection } from './metadata';
-import { Property } from './annotations/property';
-import { ValidatorImpl } from './validator-impl';
+import 'mocha';
+import { Entity, EntityMetadataCollection, Id, Property, ValidatorImpl } from '.';
 
 use(require('chai-as-promised'));
 

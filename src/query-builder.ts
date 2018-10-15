@@ -1,6 +1,6 @@
-import { AdamantRepository } from './repository';
 import { HydrateOptions } from './hydrator';
 import { AdamantRevMeta } from './meta-interfaces';
+import { AdamantRepository } from './repository';
 
 export class QueryBuilder<T> {
     protected _selector: PouchDB.Find.Selector = {};

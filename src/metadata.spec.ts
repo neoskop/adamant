@@ -1,18 +1,28 @@
-import 'mocha';
 import { expect } from 'chai';
-import { Entity } from './annotations/entity';
-import { Id, IdMetadata, IdStrategy } from './annotations/id';
-import { DesignDocMetadataCollection, EntityMetadataCollection } from './metadata';
-import { Property, PropertyMetadata } from './annotations/property';
-import { BelongsTo, BelongsToMetadata } from './annotations/belongs-to';
-import { Inline, InlineMetadata } from './annotations/inline';
-import { HasMany, HasManyMetadata } from './annotations/has-many';
-import { HasManyMap, HasManyMapMetadata } from './annotations/has-many-map';
-import { InlineEntity } from './annotations/inline-entity';
-import { DesignDoc } from './annotations/design-doc';
-import { View } from './annotations/view';
-import { Filter } from './annotations/filter';
-import { ValidateDoc } from './annotations/validate-doc';
+import 'mocha';
+import {
+    BelongsTo,
+    BelongsToMetadata,
+    DesignDoc,
+    DesignDocMetadataCollection,
+    Entity,
+    EntityMetadataCollection,
+    Filter,
+    HasMany,
+    HasManyMap,
+    HasManyMapMetadata,
+    HasManyMetadata,
+    Id,
+    IdMetadata,
+    IdStrategy,
+    Inline,
+    InlineEntity,
+    InlineMetadata,
+    Property,
+    PropertyMetadata,
+    ValidateDoc,
+    View
+} from '.';
 
 @Entity('default-entity')
 export class DefaultMetadataFixture {

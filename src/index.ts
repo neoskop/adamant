@@ -26,6 +26,7 @@ export * from './injector';
 export * from './injector-tokens';
 export * from './meta-interfaces';
 export * from './metadata';
+export * from './read-query-batcher';
 export * from './query-builder';
 export * from './repository';
 export * from './validator';

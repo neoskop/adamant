@@ -1,15 +1,13 @@
-import 'mocha';
-import './test-init';
-import { inject, TestBed } from '@angular/core/testing';
-import { AdamantModule } from './adamant.module';
-import { expect } from 'chai';
-import { AdamantConnectionManager, AdamantRepository, DesignDoc, Entity, Id, View } from '@neoskop/adamant';
-import { MemoryPouchDB } from '../../tests/pouchdb';
 import { Type } from '@angular/core';
-import { AdamantInitializationEnd, AdamantInitializationService } from './adamant-initialization.service';
+import { inject, TestBed } from '@angular/core/testing';
+import { AdamantConnectionManager, AdamantRepository, DesignDoc, Entity, Id, View } from '@neoskop/adamant';
+import { expect } from 'chai';
+import 'mocha';
 import { filter, first } from 'rxjs/operators';
 import { SinonSpy, spy } from 'sinon';
-import { ADAMANT_DESIGN_DOCS, ADAMANT_ENTITIES } from './injector-tokens';
+import { ADAMANT_DESIGN_DOCS, ADAMANT_ENTITIES, AdamantInitializationEnd, AdamantInitializationService, AdamantModule } from '.';
+import { MemoryPouchDB } from '../../tests/pouchdb';
+import './test-init';
 
 @Entity('test')
 export class TestEntity {

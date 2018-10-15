@@ -1,6 +1,6 @@
-import 'mocha';
 import { expect, use } from 'chai';
-import { QueryBuilder } from './query-builder';
+import 'mocha';
+import { QueryBuilder } from '.';
 
 use(require('sinon-chai'));
 

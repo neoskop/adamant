@@ -1,6 +1,6 @@
-import { RelationMetadata } from './relation';
-import { Ctor, populate, pushPropertyMetadata } from '../utils/metadata';
 import { ForwardRefFn } from '../injector';
+import { Ctor, populate, pushPropertyMetadata } from '../utils/metadata';
+import { RelationMetadata } from './relation';
 
 export class BelongsToMetadata<T> extends RelationMetadata<T> {}
 

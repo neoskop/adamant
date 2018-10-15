@@ -1,19 +1,23 @@
-import 'mocha';
 import { expect, use } from 'chai';
-import { Entity } from './annotations/entity';
-import { Id, IdStrategy } from './annotations/id';
-import { EntityMetadataCollection } from './metadata';
-import { Property } from './annotations/property';
+import 'mocha';
 import { SinonSpy, spy, stub } from 'sinon';
-import { BelongsTo } from './annotations/belongs-to';
-import { HasMany } from './annotations/has-many';
-import { HasManyMap } from './annotations/has-many-map';
-import { Inline } from './annotations/inline';
-import { Ctor, populate } from './utils/metadata';
-import { InlineEntity } from './annotations/inline-entity';
-import { markIdRev } from './utils/marks';
-import { HydratorImpl } from './hydrator-impl';
-import { adamantIdFactory } from './factories';
+import {
+    adamantIdFactory,
+    BelongsTo,
+    Ctor,
+    Entity,
+    EntityMetadataCollection,
+    HasMany,
+    HasManyMap,
+    HydratorImpl,
+    Id,
+    IdStrategy,
+    Inline,
+    InlineEntity,
+    markIdRev,
+    populate,
+    Property
+} from '.';
 
 use(require('chai-as-promised'));
 
