@@ -1,3 +1,5 @@
+import { Subscriber } from 'rxjs/internal-compatibility';
+import { Observable } from 'rxjs/internal/Observable';
 import { Bulk } from './bulk';
 import { HydrateOptions, Hydrator } from './hydrator';
 import {
@@ -277,6 +279,28 @@ export class AdamantRepository<T extends {}> {
 
     rawView<R = T>(name: string, options?: PouchDB.Query.Options<T, R>): Promise<PouchDB.Query.Response<R>> {
         return this.db.query(name, options);
+    }
+
+    changes(options?: PouchDB.Core.ChangesOptions): Observable<PouchDB.Core.ChangesResponseChange<T>> {
+        return Observable.create((sub: Subscriber<PouchDB.Core.ChangesResponseChange<T>>) => {
+            const changes = this.getConnection().changes(options);
+
+            changes.on('change', change => {
+                try {
+                    if (this.metadata.name === this.id.parse(change.id).name) {
+                        sub.next(change);
+                    }
+                } catch {}
+            });
+
+            changes.on('error', /* istanbul ignore next */ error => sub.error(error));
+
+            changes.on('complete', () => sub.complete());
+
+            return () => {
+                changes.removeAllListeners();
+            };
+        });
     }
 }
 
