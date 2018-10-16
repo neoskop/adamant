@@ -119,5 +119,5 @@ export const ADAMANT_CONNECTION_MANAGER_PROVIDER = {
     useFactory(connectionFactory: ConnectionFactory, id: AdamantId, injector: AdamantInjector, injectorFactory: Function) {
         return new AdamantConnectionManager(connectionFactory, id, injector, injectorFactory);
     },
-    deps: [ADAMANT_CONNECTION_FACTORY, ADAMANT_ID, ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY]
+    deps: [ADAMANT_CONNECTION_FACTORY, ADAMANT_ID, ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY] as any[]
 };

@@ -85,5 +85,5 @@ export const ADAMANT_BULK_PROVIDER = {
     ) {
         return new Bulk(db, entityClass, metadata, hydrator, validator);
     },
-    deps: [ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA, Hydrator, Validator]
+    deps: [ADAMANT_CONNECTION, ADAMANT_ENTITY_CLASS, ADAMANT_ENTITY_METADATA, Hydrator, Validator] as any[]
 };
