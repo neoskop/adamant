@@ -9,7 +9,7 @@
     "private": false,
     "scripts": {
         "test": "TS_NODE_CACHE=false mocha -r ts-node/register -r tsconfig-paths/register 'src/**/*.spec.ts' 'tests/**/*.spec.ts'",
-        "coverage": "nyc -e '.ts' -r html -r text npm test",
+        "coverage": "nyc -e '.ts' -r html -r text npm test && nyc report -r text-lcov | coveralls",
         "prebuild": "npm run coverage",
         "build": "ng-packagr -p src/package.json",
         "postbuild": "node bin/postbuild.js",
@@ -40,6 +40,7 @@
         "@types/sinon-chai": "3.2.0",
         "chai": "4.2.0",
         "chai-as-promised": "7.1.1",
+        "coveralls": "3.0.2",
         "husky": "1.1.2",
         "injection-js": "2.2.1",
         "lint-staged": "7.3.0",
