@@ -58,6 +58,8 @@ export class HydratorImpl<T> extends Hydrator<T> {
                     } else if (annotation instanceof InlineMetadata) {
                         doc[property] = this.connectionManager.getRepository(annotation.type).hydrator.dehydrate(value);
                     }
+                } else if (annotation.default != null) {
+                    entity[property as keyof T] = doc[property] = annotation.default;
                 }
             } else if (annotation instanceof PropertyMetadata) {
                 if (annotation instanceof IdMetadata) {
@@ -100,7 +102,7 @@ export class HydratorImpl<T> extends Hydrator<T> {
         for (const [property, annotation] of this.metadata.properties) {
             const value: any = data[property as keyof T];
             if (null == value) {
-                entity[property as keyof T] = null!;
+                entity[property as keyof T] = null != annotation.default ? annotation.default : null!;
             } else {
                 /* istanbul ignore else */
                 if (annotation instanceof RelationMetadata) {

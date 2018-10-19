@@ -74,6 +74,9 @@ export class ComplexEntity {
     @HasMany(HasManyEntity)
     hasMany?: HasManyEntity[];
 
+    @HasMany(HasManyEntity, { default: [] })
+    hasManyDefault?: HasManyEntity[];
+
     @HasManyMap(HasManyMapEntity)
     hasManyMap?: { [key: string]: HasManyMapEntity };
 
@@ -187,6 +190,7 @@ describe('HydratorImpl', () => {
                     id: 'id',
                     belongsTo: populate(new BelongsToEntity(), { id: 'a' }),
                     hasMany: [populate(new HasManyEntity(), { id: 'a' }), populate(new HasManyEntity(), { id: 'b' })],
+                    hasManyDefault: [],
                     hasManyMap: { a: populate(new HasManyMapEntity(), { id: 'a' }), b: populate(new HasManyMapEntity(), { id: 'b' }) },
                     inline: populate(new InlineEntityImpl(), { key: 'foobar' })
                 })
@@ -228,6 +232,7 @@ describe('HydratorImpl', () => {
                 id: 'id',
                 belongsTo: 'belongs-to_2_a',
                 hasMany: ['has-many_2_a', 'has-many_2_b'],
+                hasManyDefault: [],
                 hasManyMap: { a: 'has-many-map_2_a', b: 'has-many-map_2_b' },
                 inline: { key: 'foobar' }
             });
