@@ -7,6 +7,7 @@ import {
     Ctor,
     Entity,
     EntityMetadataCollection,
+    forwardRef,
     HasMany,
     HasManyMap,
     HydratorImpl,
@@ -43,12 +44,18 @@ class BelongsToEntity {
 class HasManyEntity {
     @Id()
     id!: string;
+
+    @BelongsTo({ type: forwardRef(() => ComplexEntity) })
+    complex?: ComplexEntity;
 }
 
 @Entity('has-many-map')
 class HasManyMapEntity {
     @Id()
     id!: string;
+
+    @BelongsTo({ type: forwardRef(() => ComplexEntity) })
+    complex?: ComplexEntity;
 }
 
 @InlineEntity()
@@ -236,6 +243,31 @@ describe('HydratorImpl', () => {
                 hasManyMap: { a: 'has-many-map_2_a', b: 'has-many-map_2_b' },
                 inline: { key: 'foobar' }
             });
+        });
+
+        it('should set belongs-to relations back to entity', () => {
+            const hasManyEntity = populate(new HasManyEntity(), { id: 'has-many' });
+            const hasManyMapEntity = populate(new HasManyMapEntity(), { id: 'has-many-map' });
+            const complexEntity = populate(new ComplexEntity(), {
+                id: 'id',
+                belongsTo: populate(new BelongsToEntity(), { id: 'a' }),
+                hasMany: [hasManyEntity],
+                hasManyMap: { a: hasManyMapEntity },
+                inline: populate(new InlineEntityImpl(), { key: 'foobar' })
+            });
+
+            expect(complexHydrator.dehydrate(complexEntity)).to.be.eql({
+                _id: 'complex-entity_2_id',
+                id: 'id',
+                belongsTo: 'belongs-to_2_a',
+                hasMany: ['has-many_2_has-many'],
+                hasManyDefault: [],
+                hasManyMap: { a: 'has-many-map_2_has-many-map' },
+                inline: { key: 'foobar' }
+            });
+            expect(hasManyEntity.id).to.be.equal('has-many');
+            expect(hasManyEntity.complex).to.be.equal(complexEntity);
+            expect(hasManyMapEntity.complex).to.be.equal(complexEntity);
         });
 
         it('should create uuid if undefined and write it in entity', () => {

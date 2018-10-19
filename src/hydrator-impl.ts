@@ -44,6 +44,16 @@ export class HydratorImpl<T> extends Hydrator<T> {
                 if (value != null) {
                     const relationMetadata = this.connectionManager.getMetadata(annotation.type);
 
+                    if (annotation instanceof HasManyMetadata || annotation instanceof HasManyMapMetadata) {
+                        for (const [key, meta] of relationMetadata.properties) {
+                            if (meta instanceof BelongsToMetadata && meta.type === this.metadata.entity) {
+                                for (const v of annotation instanceof HasManyMetadata ? value : Object.values<any>(value)) {
+                                    v[key] = entity;
+                                }
+                            }
+                        }
+                    }
+
                     /* istanbul ignore else */
                     if (annotation instanceof BelongsToMetadata) {
                         doc[property] = relationToId(value, relationMetadata, this.id);
