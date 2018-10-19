@@ -45,7 +45,7 @@ export class EntityMetadataCollection<T> {
     // readonly hasMany = new Map<string | symbol, HasManyMetadata<any>>();
     // readonly hasManyMap = new Map<string | symbol, HasManyMapMetadata<any>>();
 
-    private constructor(protected readonly entity: Ctor<T>) {
+    private constructor(public readonly entity: Ctor<T>) {
         this.parse();
         this.assert();
     }
