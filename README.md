@@ -1,21 +1,32 @@
 # @neoskop/adamant
 
 > PouchDB ORM written in pure Typescript  
-> ***adamant***: *too hard to cut, break, or pierce.*
+> **_adamant_**: _too hard to cut, break, or pierce._
+
+Master  
+[![Travis master][travis-master-image]][travis-master-url]
+[![Test coverage master][coveralls-master-image]][coveralls-master-url]
+[![Known Vulnerabilities master][snyk-master-image]][snyk-master-url]
+
+Develop  
+[![Travis develop][travis-develop-image]][travis-develop-url]
+[![Test coverage develop][coveralls-develop-image]][coveralls-develop-url]
+[![Known Vulnerabilities develop][snyk-develop-image]][snyk-develop-url]
 
 ## Features
 
- - Define your entities and design docs with annotations
- - design docs
-    - views
-    - filters
-    - validate_doc_update (with PouchDB-Plugin or CouchDB)
- - Relations
-    - belongsTo
-    - hasMany/hasManyMap
-    - inline
+-   Define your entities and design docs with annotations
+-   design docs
+    -   views
+    -   filters
+    -   validate_doc_update (with PouchDB-Plugin or CouchDB)
+-   Relations
+    -   belongsTo
+    -   hasMany/hasManyMap
+    -   inline
 
 ## Installation
+
 ```bash
 $ yarn add @neoskop/adamant
 
@@ -32,7 +43,7 @@ An entity requires an Entity and an Id annotation.
 class PersonEntity {
     @Id()
     id!: string;
-    
+
     @Property()
     name?: string;
 }
@@ -41,7 +52,7 @@ class PersonEntity {
 **Create/update/read from database**
 
 ```typescript
-declare const connection : AdamantConnectionManager;
+declare const connection: AdamantConnectionManager;
 
 const repo = connection.getRepository(PersonEntity);
 
@@ -66,7 +77,7 @@ await repo.delete(personCopy); // marks database entry as deleted (_deleted = tr
 class ClassEntity {
     @Id()
     id!: string;
-    
+
     @HasMany(Person)
     persons?: Person[];
 }
@@ -77,18 +88,16 @@ const personRepo = connection.getRepository(PersonEntity);
 const janeDoe = personRepo.build({ id: '1', name: 'Jane Doe' });
 const jonDoe = personRepo.build({ id: '2', name: 'Jon Doe' });
 
-await personRepo.bulk.create([ janeDoe, jonDoe ]); // persist multiple entities at once
+await personRepo.bulk.create([janeDoe, jonDoe]); // persist multiple entities at once
 
-const cls = classRepo.build({ id: '2a', persons: [ janeDoe, jonDoe ] });
+const cls = classRepo.build({ id: '2a', persons: [janeDoe, jonDoe] });
 
 await classRepo.create(cls); // relations will be replace with their id's
-
 ```
 
 **Angular Module**
 
 ```typescript
-
 @NgModule({
     imports: [
         CommonModule,
@@ -100,7 +109,6 @@ await classRepo.create(cls); // relations will be replace with their id's
     ]
 })
 export class AppModule {}
-
 ```
 
 ## Development
@@ -152,5 +160,17 @@ SOFTWARE.
 
 [![Neoskop GmbH][neoskop-image]][neoskop-url]
 
+[travis-master-image]: https://img.shields.io/travis/neoskop/adamant/master.svg
+[travis-master-url]: https://travis-ci.org/neoskop/adamant
+[travis-develop-image]: https://img.shields.io/travis/neoskop/adamant/develop.svg
+[travis-develop-url]: https://travis-ci.org/neoskop/adamant
+[snyk-master-image]: https://snyk.io/test/github/neoskop/adamant/master/badge.svg
+[snyk-master-url]: https://snyk.io/test/github/neoskop/adamant/master
+[coveralls-master-image]: https://coveralls.io/repos/github/neoskop/adamant/badge.svg?branch=master
+[coveralls-master-url]: https://coveralls.io/github/neoskop/adamant?branch=master
+[coveralls-develop-image]: https://coveralls.io/repos/github/neoskop/adamant/badge.svg?branch=develop
+[coveralls-develop-url]: https://coveralls.io/github/neoskop/adamant?branch=develop
+[snyk-develop-image]: https://snyk.io/test/github/neoskop/adamant/develop/badge.svg
+[snyk-develop-url]: https://snyk.io/test/github/neoskop/adamant/develop
 [neoskop-image]: ./neoskop.png
 [neoskop-url]: https://www.neoskop.de/
