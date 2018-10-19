@@ -4,7 +4,7 @@ import { PropertyMetadata } from './property';
 
 export class RelationMetadata<T> extends PropertyMetadata {
     required!: boolean;
-    default?: T;
+    default?: any;
     // private _entity! : ForwardRefFn | Ctor<T>;
 
     set type(type: Ctor<T> /*| ForwardRefFn */) {
