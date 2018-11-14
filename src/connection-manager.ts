@@ -93,8 +93,8 @@ export class AdamantConnectionManager {
                 },
                 {
                     provide: Validator,
-                    useFactory: metadata.hydrator
-                        ? metadata.hydrator
+                    useFactory: metadata.validator
+                        ? metadata.validator
                         : () => {
                               return new ValidatorImpl(metadata);
                           },
