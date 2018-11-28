@@ -24,6 +24,7 @@ export * from './hydrator';
 export * from './hydrator-impl';
 export * from './injector';
 export * from './injector-tokens';
+export * from './injection';
 export * from './meta-interfaces';
 export * from './metadata';
 export * from './read-query-batcher';

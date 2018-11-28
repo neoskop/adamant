@@ -32,15 +32,15 @@ export function designDocFactory(...designDocs: any[]) {
 
 @NgModule()
 export class AdamantModule {
-    static forRoot({ initOnStartup = true, factory, entities, designDocs = [] }: AdamantModuleRootConfiguration): ModuleWithProviders {
+    static forRoot({ initOnStartup = true, factory, entities, designDocs }: AdamantModuleRootConfiguration): ModuleWithProviders {
         return {
             ngModule: AdamantModule,
             providers: [
-                designDocs,
+                designDocs || [],
                 ADAMANT_CONNECTION_MANAGER_PROVIDER,
                 { provide: ADAMANT_CONNECTION_FACTORY, useValue: factory },
                 { provide: ADAMANT_ENTITIES, useValue: entities, multi: true },
-                { provide: ADAMANT_DESIGN_DOCS, useFactory: designDocFactory, deps: designDocs, multi: true },
+                { provide: ADAMANT_DESIGN_DOCS, useFactory: designDocFactory, deps: designDocs || [], multi: true },
                 { provide: ADAMANT_ID, useFactory: adamantIdFactory },
                 { provide: ADAMANT_EQUAL_CHECKER, useFactory: equalCheckerFactory },
                 { provide: ADAMANT_INJECTOR, useExisting: Injector },
@@ -55,13 +55,13 @@ export class AdamantModule {
         };
     }
 
-    static forFeature({ entities, designDocs = [] }: AdamantModuleFeatureConfiguration): ModuleWithProviders {
+    static forFeature({ entities, designDocs }: AdamantModuleFeatureConfiguration): ModuleWithProviders {
         return {
             ngModule: AdamantModule,
             providers: [
-                designDocs,
+                designDocs || [],
                 { provide: ADAMANT_ENTITIES, useValue: entities, multi: true },
-                { provide: ADAMANT_DESIGN_DOCS, useFactory: designDocFactory, deps: designDocs, multi: true }
+                { provide: ADAMANT_DESIGN_DOCS, useFactory: designDocFactory, deps: designDocs || [], multi: true }
             ]
         };
     }

@@ -1,4 +1,4 @@
-import { InjectionToken } from './injector';
+import { AdamantInjectionToken } from './injection';
 import { EntityMetadataCollection } from './metadata';
 import { Ctor } from './utils/metadata';
 
@@ -17,9 +17,9 @@ export interface AdamantId {
     parse(id: string): { name: string; type: typeof String | typeof Number; id: string | number };
 }
 
-export const ADAMANT_CONNECTION = new InjectionToken<PouchDB.Database>('ADAMANT_CONNECTION');
-export const ADAMANT_ENTITY_CLASS = new InjectionToken<Ctor<any>>('ADAMANT_ENTITY_CLASS');
-export const ADAMANT_ENTITY_METADATA = new InjectionToken<EntityMetadataCollection<any>>('ADAMANT_ENTITY_METADATA');
-export const ADAMANT_EQUAL_CHECKER = new InjectionToken<EqualChecker>('ADAMANT_EQUAL_CHECKER');
-export const ADAMANT_CONNECTION_FACTORY = new InjectionToken<ConnectionFactory>('ADAMANT_CONNECTION_FACTORY');
-export const ADAMANT_ID = new InjectionToken<AdamantId>('ADAMANT_ID');
+export const ADAMANT_CONNECTION = new AdamantInjectionToken<PouchDB.Database>('ADAMANT_CONNECTION');
+export const ADAMANT_ENTITY_CLASS = new AdamantInjectionToken<Ctor<any>>('ADAMANT_ENTITY_CLASS');
+export const ADAMANT_ENTITY_METADATA = new AdamantInjectionToken<EntityMetadataCollection<any>>('ADAMANT_ENTITY_METADATA');
+export const ADAMANT_EQUAL_CHECKER = new AdamantInjectionToken<EqualChecker>('ADAMANT_EQUAL_CHECKER');
+export const ADAMANT_CONNECTION_FACTORY: any = new AdamantInjectionToken<ConnectionFactory>('ADAMANT_CONNECTION_FACTORY');
+export const ADAMANT_ID = new AdamantInjectionToken<AdamantId>('ADAMANT_ID');

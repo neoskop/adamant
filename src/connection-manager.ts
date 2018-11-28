@@ -1,8 +1,9 @@
+import { ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY } from './injector';
 import { ADAMANT_BULK_PROVIDER } from './bulk';
 import { adamantIdFactory, equalCheckerFactory } from './factories';
 import { Hydrator } from './hydrator';
 import { HydratorImpl } from './hydrator-impl';
-import { ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY, AdamantInjector, createInjector } from './injector';
+import { AdamantInjector, createInjector } from './injector';
 import {
     ADAMANT_CONNECTION,
     ADAMANT_CONNECTION_FACTORY,
@@ -18,19 +19,6 @@ import { ADAMANT_REPOSITORY_PROVIDER, AdamantRepository } from './repository';
 import { Ctor } from './utils/metadata';
 import { Validator } from './validator';
 import { ValidatorImpl } from './validator-impl';
-
-export function createAdamantConnection(factory: ConnectionFactory): AdamantConnectionManager {
-    const injector = createInjector({
-        providers: [
-            { provide: ADAMANT_CONNECTION_FACTORY, useValue: factory },
-            ADAMANT_CONNECTION_MANAGER_PROVIDER,
-            { provide: ADAMANT_ID, useFactory: adamantIdFactory, deps: [] },
-            { provide: ADAMANT_EQUAL_CHECKER, useFactory: equalCheckerFactory, deps: [] }
-        ]
-    });
-
-    return injector.get(AdamantConnectionManager);
-}
 
 export class AdamantConnectionManager {
     protected readonly connections = new Map<string, PouchDB.Database<any>>();
@@ -112,6 +100,19 @@ export class AdamantConnectionManager {
     getDesignDocMetadata<T>(designDocClass: Ctor<T>): DesignDocMetadataCollection<T> {
         return DesignDocMetadataCollection.create(designDocClass);
     }
+}
+
+export function createAdamantConnection(factory: ConnectionFactory): AdamantConnectionManager {
+    const injector = createInjector({
+        providers: [
+            { provide: ADAMANT_CONNECTION_FACTORY, useValue: factory },
+            ADAMANT_CONNECTION_MANAGER_PROVIDER,
+            { provide: ADAMANT_ID, useFactory: adamantIdFactory, deps: [] },
+            { provide: ADAMANT_EQUAL_CHECKER, useFactory: equalCheckerFactory, deps: [] }
+        ]
+    });
+
+    return injector.get(AdamantConnectionManager);
 }
 
 export const ADAMANT_CONNECTION_MANAGER_PROVIDER = {
