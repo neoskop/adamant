@@ -21,5 +21,5 @@ export const ADAMANT_CONNECTION = new AdamantInjectionToken<PouchDB.Database>('A
 export const ADAMANT_ENTITY_CLASS = new AdamantInjectionToken<Ctor<any>>('ADAMANT_ENTITY_CLASS');
 export const ADAMANT_ENTITY_METADATA = new AdamantInjectionToken<EntityMetadataCollection<any>>('ADAMANT_ENTITY_METADATA');
 export const ADAMANT_EQUAL_CHECKER = new AdamantInjectionToken<EqualChecker>('ADAMANT_EQUAL_CHECKER');
-export const ADAMANT_CONNECTION_FACTORY: any = new AdamantInjectionToken<ConnectionFactory>('ADAMANT_CONNECTION_FACTORY');
+export const ADAMANT_CONNECTION_FACTORY = new AdamantInjectionToken<ConnectionFactory>('ADAMANT_CONNECTION_FACTORY');
 export const ADAMANT_ID = new AdamantInjectionToken<AdamantId>('ADAMANT_ID');

@@ -1,9 +1,8 @@
-import { ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY } from './injector';
 import { ADAMANT_BULK_PROVIDER } from './bulk';
 import { adamantIdFactory, equalCheckerFactory } from './factories';
 import { Hydrator } from './hydrator';
 import { HydratorImpl } from './hydrator-impl';
-import { AdamantInjector, createInjector } from './injector';
+import { ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY, AdamantInjector, createInjector } from './injector';
 import {
     ADAMANT_CONNECTION,
     ADAMANT_CONNECTION_FACTORY,
@@ -114,7 +113,6 @@ export function createAdamantConnection(factory: ConnectionFactory): AdamantConn
 
     return injector.get(AdamantConnectionManager);
 }
-
 export const ADAMANT_CONNECTION_MANAGER_PROVIDER = {
     provide: AdamantConnectionManager,
     useFactory(connectionFactory: ConnectionFactory, id: AdamantId, injector: AdamantInjector, injectorFactory: Function) {
