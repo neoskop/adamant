@@ -1,5 +1,4 @@
-import { Type } from '@angular/core';
-import { inject, TestBed } from '@angular/core/testing';
+import { Injector, Type } from '@angular/core';
 import { AdamantConnectionManager, AdamantRepository, DesignDoc, Entity, Id, View } from '@neoskop/adamant';
 import { expect } from 'chai';
 import 'mocha';
@@ -7,7 +6,7 @@ import { filter, first } from 'rxjs/operators';
 import { SinonSpy, spy } from 'sinon';
 import { ADAMANT_DESIGN_DOCS, ADAMANT_ENTITIES, AdamantInitializationEnd, AdamantInitializationService, AdamantModule } from '.';
 import { MemoryPouchDB } from '../../tests/pouchdb';
-import './test-init';
+import { NemModule, nem } from '@neoskop/nem';
 
 @Entity('test')
 export class TestEntity {
@@ -37,25 +36,61 @@ export function pouchdbFactory(name: string) {
     return new MemoryPouchDB(name);
 }
 
-describe('ng : AdamantModule', () => {
+@NemModule({
+    modules: [
+        AdamantModule.forRoot({
+            factory: pouchdbFactory,
+            entities: [TestEntity],
+            designDocs: [TestDesignDoc]
+        })
+    ]
+})
+class RootTestModule {}
+
+@NemModule({
+    modules: [
+        AdamantModule.forRoot({
+            factory: pouchdbFactory,
+            entities: [TestEntity],
+            designDocs: [TestDesignDoc]
+        }),
+        AdamantModule.forFeature({
+            entities: [Test2Entity],
+            designDocs: [Test2DesignDoc]
+        })
+    ]
+})
+class FeatureTestModule {}
+
+describe('nem : AdamantModule', () => {
     let testUpsertSpy: SinonSpy;
     let test2UpsertSpy: SinonSpy;
     let testQuerySpy: SinonSpy;
     let test2QuerySpy: SinonSpy;
+
+    let injector: Injector;
+
+    function inject(deps: any[], fn: Function) {
+        return () => {
+            return fn.apply(null, deps.map(d => injector.get(d)));
+        };
+    }
+
     describe('forRoot', () => {
         beforeEach(() => {
-            TestBed.configureTestingModule({
-                imports: [
-                    AdamantModule.forRoot({
-                        factory: pouchdbFactory,
-                        entities: [TestEntity],
-                        designDocs: [TestDesignDoc]
-                    })
-                ]
-            }).compileComponents();
+            // TestBed.configureTestingModule({
+            //     imports: [
+            //         AdamantModule.forRoot({
+            //             factory: pouchdbFactory,
+            //             entities: [TestEntity],
+            //             designDocs: [TestDesignDoc]
+            //         })
+            //     ]
+            // }).compileComponents();
+            injector = nem().bootstrap(RootTestModule).injector as Injector;
 
-            testUpsertSpy = spy(TestBed.get(AdamantConnectionManager).getRepository(TestEntity).db, 'upsert');
-            testQuerySpy = spy(TestBed.get(AdamantConnectionManager).getRepository(TestEntity).db, 'query');
+            testUpsertSpy = spy(injector.get<any>(AdamantConnectionManager).getRepository(TestEntity).db, 'upsert');
+            testQuerySpy = spy(injector.get<any>(AdamantConnectionManager).getRepository(TestEntity).db, 'query');
         });
 
         it('should create', () => {
@@ -109,25 +144,26 @@ describe('ng : AdamantModule', () => {
 
     describe('forFeature', () => {
         beforeEach(() => {
-            TestBed.configureTestingModule({
-                imports: [
-                    AdamantModule.forRoot({
-                        factory: pouchdbFactory,
-                        entities: [TestEntity],
-                        designDocs: [TestDesignDoc]
-                    }),
-                    AdamantModule.forFeature({
-                        entities: [Test2Entity],
-                        designDocs: [Test2DesignDoc]
-                    })
-                ]
-            }).compileComponents();
+            // TestBed.configureTestingModule({
+            //     imports: [
+            //         AdamantModule.forRoot({
+            //             factory: pouchdbFactory,
+            //             entities: [TestEntity],
+            //             designDocs: [TestDesignDoc]
+            //         }),
+            //         AdamantModule.forFeature({
+            //             entities: [Test2Entity],
+            //             designDocs: [Test2DesignDoc]
+            //         })
+            //     ]
+            // }).compileComponents();
+            injector = nem().bootstrap(FeatureTestModule).injector as Injector;
 
-            testUpsertSpy = spy(TestBed.get(AdamantConnectionManager).getRepository(TestEntity).db, 'upsert');
-            testQuerySpy = spy(TestBed.get(AdamantConnectionManager).getRepository(TestEntity).db, 'query');
+            testUpsertSpy = spy(injector.get<any>(AdamantConnectionManager).getRepository(TestEntity).db, 'upsert');
+            testQuerySpy = spy(injector.get<any>(AdamantConnectionManager).getRepository(TestEntity).db, 'query');
 
-            test2UpsertSpy = spy(TestBed.get(AdamantConnectionManager).getRepository(Test2Entity).db, 'upsert');
-            test2QuerySpy = spy(TestBed.get(AdamantConnectionManager).getRepository(Test2Entity).db, 'query');
+            test2UpsertSpy = spy(injector.get<any>(AdamantConnectionManager).getRepository(Test2Entity).db, 'upsert');
+            test2QuerySpy = spy(injector.get<any>(AdamantConnectionManager).getRepository(Test2Entity).db, 'query');
         });
 
         it('should create', () => {
