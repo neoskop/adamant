@@ -5,54 +5,54 @@ export interface Ctor<T extends {}> extends Function {
     prototype: T;
 }
 
-export const CLASS_METADATA = new WeakMap<Ctor<any> | Function, any[]>();
-export const PROPERTY_METADATA = new WeakMap<Ctor<any> | Function, Map<string | symbol, any[]>>();
+export const CLASS_METADATA_KEY = '__adamant_class_metadata';
+export const PROPERTY_METADATA_KEY = '__adamant_property_metadata';
 
 export function getClassMetadata<T = any>(target: Ctor<any> | Function, type?: Ctor<T>): T[] {
-    if (!CLASS_METADATA.has(target)) {
+    if (!target.hasOwnProperty(CLASS_METADATA_KEY)) {
         return [];
     }
 
-    return CLASS_METADATA.get(target)!.filter(a => !type || a instanceof type);
+    return (target as any)[CLASS_METADATA_KEY]!.filter((a: Ctor<any>) => !type || a instanceof type);
 }
 
 export function pushClassMetadata(target: Ctor<any> | Function, metadata: any) {
-    if (!CLASS_METADATA.has(target)) {
-        CLASS_METADATA.set(target, []);
+    if (!target.hasOwnProperty(CLASS_METADATA_KEY)) {
+        __prepare(target, CLASS_METADATA_KEY, []);
     }
-    CLASS_METADATA.get(target)!.push(metadata);
+    (target as any)[CLASS_METADATA_KEY]!.push(metadata);
 }
 
 export function getPropertyMetadata<T = any>(target: any, property: string | symbol, type?: Ctor<any>): T[] {
-    if (!PROPERTY_METADATA.has(target) || !PROPERTY_METADATA.get(target)!.has(property)) {
+    if (!target.hasOwnProperty(PROPERTY_METADATA_KEY) || !target[PROPERTY_METADATA_KEY].has(property)) {
         return [];
     }
 
-    return PROPERTY_METADATA.get(target)!
-        .get(property)!
-        .filter(a => !type || a instanceof type);
+    return target[PROPERTY_METADATA_KEY].get(property)!.filter((a: Ctor<any>) => !type || a instanceof type);
 }
 
 export function getAllPropertyMetadata<T = any>(target: any): Map<string | symbol, T[]> {
-    if (!PROPERTY_METADATA.has(target)) {
+    if (!target.hasOwnProperty(PROPERTY_METADATA_KEY)) {
         return new Map();
     }
 
-    return PROPERTY_METADATA.get(target)!;
+    return target[PROPERTY_METADATA_KEY];
 }
 
 export function pushPropertyMetadata(target: any, property: string | symbol, metadata: any) {
-    if (!PROPERTY_METADATA.has(target)) {
-        PROPERTY_METADATA.set(target, new Map());
+    if (!target.hasOwnProperty(PROPERTY_METADATA_KEY)) {
+        __prepare(target, PROPERTY_METADATA_KEY, new Map());
     }
 
-    if (!PROPERTY_METADATA.get(target)!.has(property)) {
-        PROPERTY_METADATA.get(target)!.set(property, []);
+    if (!target[PROPERTY_METADATA_KEY].has(property)) {
+        target[PROPERTY_METADATA_KEY].set(property, []);
     }
 
-    PROPERTY_METADATA.get(target)!
-        .get(property)!
-        .push(metadata);
+    target[PROPERTY_METADATA_KEY].get(property)!.push(metadata);
+}
+
+function __prepare(target: object, key: string, value: any) {
+    Object.defineProperty(target, key, { value });
 }
 
 export function populate<T>(target: T, source: Partial<T>): T {

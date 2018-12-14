@@ -19,19 +19,6 @@ import { Ctor } from './utils/metadata';
 import { Validator } from './validator';
 import { ValidatorImpl } from './validator-impl';
 
-export function createAdamantConnection(factory: ConnectionFactory): AdamantConnectionManager {
-    const injector = createInjector({
-        providers: [
-            { provide: ADAMANT_CONNECTION_FACTORY, useValue: factory },
-            ADAMANT_CONNECTION_MANAGER_PROVIDER,
-            { provide: ADAMANT_ID, useFactory: adamantIdFactory, deps: [] },
-            { provide: ADAMANT_EQUAL_CHECKER, useFactory: equalCheckerFactory, deps: [] }
-        ]
-    });
-
-    return injector.get(AdamantConnectionManager);
-}
-
 export class AdamantConnectionManager {
     protected readonly connections = new Map<string, PouchDB.Database<any>>();
     protected readonly repositories = new Map<Ctor<any>, AdamantRepository<any>>();
@@ -93,8 +80,8 @@ export class AdamantConnectionManager {
                 },
                 {
                     provide: Validator,
-                    useFactory: metadata.hydrator
-                        ? metadata.hydrator
+                    useFactory: metadata.validator
+                        ? metadata.validator
                         : () => {
                               return new ValidatorImpl(metadata);
                           },
@@ -114,6 +101,18 @@ export class AdamantConnectionManager {
     }
 }
 
+export function createAdamantConnection(factory: ConnectionFactory): AdamantConnectionManager {
+    const injector = createInjector({
+        providers: [
+            { provide: ADAMANT_CONNECTION_FACTORY, useValue: factory },
+            ADAMANT_CONNECTION_MANAGER_PROVIDER,
+            { provide: ADAMANT_ID, useFactory: adamantIdFactory, deps: [] },
+            { provide: ADAMANT_EQUAL_CHECKER, useFactory: equalCheckerFactory, deps: [] }
+        ]
+    });
+
+    return injector.get(AdamantConnectionManager);
+}
 export const ADAMANT_CONNECTION_MANAGER_PROVIDER = {
     provide: AdamantConnectionManager,
     useFactory(connectionFactory: ConnectionFactory, id: AdamantId, injector: AdamantInjector, injectorFactory: Function) {

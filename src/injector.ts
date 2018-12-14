@@ -1,18 +1,8 @@
-import { Ctor } from './utils/metadata';
+import { Type } from '@angular/core';
+import { AdamantInjectionToken, throwMissingInjector } from './injection';
 
-export class InjectionToken<T> {
-    constructor(
-        protected readonly _desc: string,
-        _options?: {
-            providedIn?: any | 'root' | null;
-            factory: () => T;
-        }
-    ) {}
-
-    toString() {
-        return `InjectionToken ${this._desc}`;
-    }
-}
+export const ADAMANT_INJECTOR = new AdamantInjectionToken<AdamantInjector>('ADAMANT_INJECTOR');
+export const ADAMANT_INJECTOR_FACTORY = new AdamantInjectionToken<Function>('ADAMANT_INJECTOR_FACTORY');
 
 export interface ForwardRefFn {
     (): any;
@@ -34,11 +24,8 @@ export function resolveForwardRef(type: any) {
 }
 
 export interface AdamantInjector {
-    get<T>(token: Ctor<T> | InjectionToken<T>): T;
+    get<T>(token: Type<T> | AdamantInjectionToken<T>): T;
 }
-
-export const ADAMANT_INJECTOR = new InjectionToken<AdamantInjector>('ADAMANT_INJECTOR');
-export const ADAMANT_INJECTOR_FACTORY = new InjectionToken<Function>('ADAMANT_INJECTOR_FACTORY');
 
 let injectorFactory: Function | null | false = null;
 
@@ -90,8 +77,4 @@ export function createInjectionJsInjector({ providers, parent }: { providers: an
         ],
         parent
     );
-}
-
-function throwMissingInjector() {
-    throw new Error('Dependency Injection implementation missing, provide "@angular/core" or "injection-js"');
 }

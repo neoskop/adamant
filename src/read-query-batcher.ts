@@ -4,6 +4,13 @@ export class ReadQueryBatcher {
     queue: string[] = [];
     deffered?: Deffered<PouchDB.Core.Document<any>[]>;
 
+    protected nextTick =
+        typeof process !== 'undefined' && process && process.nextTick instanceof Function
+            ? process.nextTick
+            : typeof setImmediate !== 'undefined'
+                ? setImmediate
+                : setTimeout;
+
     constructor(protected readonly db: PouchDB.Database) {}
 
     read<T>(keys: string[]): Promise<PouchDB.Core.Document<T>[]> {
@@ -19,7 +26,7 @@ export class ReadQueryBatcher {
 
     protected schedule<T>(): Deffered<PouchDB.Core.Document<T>[]> {
         if (!this.deffered) {
-            setImmediate(() => {
+            this.nextTick(() => {
                 this.execute();
             });
             this.deffered = defer();

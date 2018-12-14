@@ -1,7 +1,6 @@
 import { Inject, Injector, ModuleWithProviders, NgModule, Type } from '@angular/core';
 import {
     ADAMANT_CONNECTION_FACTORY,
-    ADAMANT_CONNECTION_MANAGER_PROVIDER,
     ADAMANT_EQUAL_CHECKER,
     ADAMANT_ID,
     ADAMANT_INJECTOR,
@@ -32,20 +31,24 @@ export function designDocFactory(...designDocs: any[]) {
 
 @NgModule()
 export class AdamantModule {
-    static forRoot({ initOnStartup = true, factory, entities, designDocs = [] }: AdamantModuleRootConfiguration): ModuleWithProviders {
+    static forRoot(options: AdamantModuleRootConfiguration): ModuleWithProviders {
         return {
             ngModule: AdamantModule,
             providers: [
-                designDocs,
-                ADAMANT_CONNECTION_MANAGER_PROVIDER,
-                { provide: ADAMANT_CONNECTION_FACTORY, useValue: factory },
-                { provide: ADAMANT_ENTITIES, useValue: entities, multi: true },
-                { provide: ADAMANT_DESIGN_DOCS, useFactory: designDocFactory, deps: designDocs, multi: true },
+                options.designDocs || [],
+                {
+                    provide: AdamantConnectionManager,
+                    useClass: AdamantConnectionManager,
+                    deps: [ADAMANT_CONNECTION_FACTORY, ADAMANT_ID, ADAMANT_INJECTOR, ADAMANT_INJECTOR_FACTORY]
+                },
+                { provide: ADAMANT_CONNECTION_FACTORY, useValue: options.factory },
+                { provide: ADAMANT_ENTITIES, useValue: options.entities, multi: true },
+                { provide: ADAMANT_DESIGN_DOCS, useFactory: designDocFactory, deps: options.designDocs || [], multi: true },
                 { provide: ADAMANT_ID, useFactory: adamantIdFactory },
                 { provide: ADAMANT_EQUAL_CHECKER, useFactory: equalCheckerFactory },
                 { provide: ADAMANT_INJECTOR, useExisting: Injector },
                 { provide: ADAMANT_INJECTOR_FACTORY, useValue: createAngularInjector },
-                { provide: ADAMANT_INIT_ON_STARTUP, useValue: initOnStartup },
+                { provide: ADAMANT_INIT_ON_STARTUP, useValue: options.initOnStartup !== false },
                 {
                     provide: AdamantInitializationService,
                     useClass: AdamantInitializationService,
@@ -55,13 +58,13 @@ export class AdamantModule {
         };
     }
 
-    static forFeature({ entities, designDocs = [] }: AdamantModuleFeatureConfiguration): ModuleWithProviders {
+    static forFeature(options: AdamantModuleFeatureConfiguration): ModuleWithProviders {
         return {
             ngModule: AdamantModule,
             providers: [
-                designDocs,
-                { provide: ADAMANT_ENTITIES, useValue: entities, multi: true },
-                { provide: ADAMANT_DESIGN_DOCS, useFactory: designDocFactory, deps: designDocs, multi: true }
+                options.designDocs || [],
+                { provide: ADAMANT_ENTITIES, useValue: options.entities, multi: true },
+                { provide: ADAMANT_DESIGN_DOCS, useFactory: designDocFactory, deps: options.designDocs || [], multi: true }
             ]
         };
     }
