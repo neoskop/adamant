@@ -43,7 +43,9 @@ export class AdamantWarmupViewError<T = any, D = any, K extends keyof D = any> e
     }
 }
 
-export class AdamantInitializationStart {}
+export class AdamantInitializationStart {
+    constructor(public readonly designDocCount: number, public readonly viewCount: number) {}
+}
 export class AdamantInitializationEnd {}
 
 export type AdamantInitializationEvent =
@@ -70,11 +72,6 @@ export class AdamantInitializationService {
     async persist(): Promise<void> {
         for (const designDoc of this.designDocs) {
             const metadata = DesignDocMetadataCollection.create(designDoc.constructor as any);
-            // const classAnnotations = getClassMetadata(designDoc.constructor, DesignDocMetadata);
-            //
-            // if (1 !== classAnnotations.length) {
-            //     throw new Error(`Design doc annotation required`);
-            // }
 
             try {
                 this.emitter.emit(new AdamantPersistDesignDocStart(metadata.entity, designDoc));
@@ -103,7 +100,10 @@ export class AdamantInitializationService {
     }
 
     async initialize(): Promise<void> {
-        this.emitter.emit(new AdamantInitializationStart());
+        const viewCount = this.designDocs
+            .map(designDoc => DesignDocMetadataCollection.create(designDoc.constructor as any).views.size)
+            .reduce((t, c) => t + c, 0);
+        this.emitter.emit(new AdamantInitializationStart(this.designDocs.length, viewCount));
         await this.persist();
         await this.warmup();
         this.emitter.emit(new AdamantInitializationEnd());
