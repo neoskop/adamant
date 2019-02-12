@@ -69,6 +69,9 @@
     "dependencies": {
         "fast-deep-equal": "2.0.1"
     },
+    "peerDependencies": {
+        "@neoskop/nem": ">=0.6.0-rc.0"
+    },
     "nyc": {
         "include": "src/**/*.ts",
         "exclude": [
