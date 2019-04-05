@@ -90,7 +90,7 @@ export class AdamantInitializationService {
             for (const view of metadata.views) {
                 try {
                     this.emitter.emit(new AdamantWarmupViewStart(metadata.entity, designDoc as any, view));
-                    await this.connectionManager.getRepository(metadata.entity).view(designDoc.constructor as any, view);
+                    await this.connectionManager.getRepository(metadata.entity).rawView(`${metadata.name}/${view}`);
                     this.emitter.emit(new AdamantWarmupViewEnd(metadata.entity, designDoc as any, view));
                 } catch (e) {
                     this.emitter.emit(new AdamantWarmupViewError(metadata.entity, designDoc as any, view, e));
