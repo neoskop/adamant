@@ -1,5 +1,5 @@
-import { Subscriber } from 'rxjs/internal-compatibility';
-import { Observable } from 'rxjs/internal/Observable';
+import { Observable, Subscriber } from 'rxjs';
+
 import { Bulk } from './bulk';
 import { HydrateOptions, Hydrator } from './hydrator';
 import {
