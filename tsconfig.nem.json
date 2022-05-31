@@ -1,0 +1,8 @@
+{
+    "extends": "./tsconfig",
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "tsc-dist"
+    },
+    "files": ["src/nem/index.ts"]
+}
