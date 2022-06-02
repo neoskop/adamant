@@ -2,7 +2,7 @@ import { Ctor, populate, pushPropertyMetadata } from '../utils/metadata';
 import { RelationMetadata } from './relation';
 
 export class HasManyMetadata<T> extends RelationMetadata<T> {
-    default?: T[];
+    // default?: T[];
 }
 
 export function HasMany<T>(type: Ctor<T> /*|ForwardRefFn*/, options: { required?: boolean; default?: T[] } = {}): PropertyDecorator {

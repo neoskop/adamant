@@ -31,7 +31,7 @@ export function designDocFactory(...designDocs: any[]) {
 
 @NgModule()
 export class AdamantModule {
-    static forRoot(options: AdamantModuleRootConfiguration): ModuleWithProviders {
+    static forRoot(options: AdamantModuleRootConfiguration): ModuleWithProviders<AdamantModule> {
         return {
             ngModule: AdamantModule,
             providers: [
@@ -58,7 +58,7 @@ export class AdamantModule {
         };
     }
 
-    static forFeature(options: AdamantModuleFeatureConfiguration): ModuleWithProviders {
+    static forFeature(options: AdamantModuleFeatureConfiguration): ModuleWithProviders<AdamantModule> {
         return {
             ngModule: AdamantModule,
             providers: [

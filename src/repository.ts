@@ -231,11 +231,11 @@ export class AdamantRepository<T extends {}> {
         }
 
         for (const filter of metadata.filters) {
-            document.filters[filter as string] = doc[filter].toString();
+            document.filters[filter as string] = (doc[filter as keyof T] as unknown as Function).toString();
         }
 
         if (metadata.validateDoc) {
-            document.validate_doc_update = doc[metadata.validateDoc].toString();
+            document.validate_doc_update = (doc[metadata.validateDoc as keyof T] as unknown as Function).toString();
         }
 
         await this.db.upsert<any>(document._id, existingDoc => {

@@ -63,7 +63,7 @@ export class AdamantInitializationService {
     protected readonly emitter = new EventEmitter<AdamantInitializationEvent>();
     readonly events: Observable<AdamantInitializationEvent> = this.emitter.asObservable();
 
-    protected readonly designDocs: object[];
+    protected readonly designDocs: { [key: string]: Function; }[];
 
     constructor(@Inject(ADAMANT_DESIGN_DOCS) designDocs: any[][], protected readonly connectionManager: AdamantConnectionManager) {
         this.designDocs = flatten(designDocs);

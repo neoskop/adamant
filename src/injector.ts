@@ -1,8 +1,8 @@
-import { Type } from '@angular/core';
+import { Type } from './type';
 import { AdamantInjectionToken, throwMissingInjector } from './injection';
 
 export const ADAMANT_INJECTOR = new AdamantInjectionToken<AdamantInjector>('ADAMANT_INJECTOR');
-export const ADAMANT_INJECTOR_FACTORY = new AdamantInjectionToken<Function>('ADAMANT_INJECTOR_FACTORY');
+export const ADAMANT_INJECTOR_FACTORY = new AdamantInjectionToken<() => AdamantInjector>('ADAMANT_INJECTOR_FACTORY');
 
 export interface ForwardRefFn {
     (): any;
@@ -27,13 +27,15 @@ export interface AdamantInjector {
     get<T>(token: Type<T> | AdamantInjectionToken<T>): T;
 }
 
-let injectorFactory: Function | null | false = null;
+export type InjectorFactory = (options: { providers: any[]; parent?: any }) => AdamantInjector;
 
-export function setInjectorFactory(factory: Function | false | null) {
+let injectorFactory: InjectorFactory | null | false = null;
+
+export function setInjectorFactory(factory: InjectorFactory | false | null) {
     injectorFactory = factory;
 }
 
-export function createInjector(options: { providers: any[]; parent?: any }): AdamantInjector {
+export async function createInjector(options: { providers: any[]; parent?: any }): Promise<AdamantInjector> {
     if (injectorFactory) {
         return injectorFactory(options);
     } else if (false === injectorFactory) {
@@ -41,8 +43,9 @@ export function createInjector(options: { providers: any[]; parent?: any }): Ada
     }
 
     try {
-        const injector = createAngularInjector(options);
-        setInjectorFactory(createAngularInjector);
+        const { Injector } = await new Function("return import('@angular/core')")();
+        const injector = createAngularInjector(Injector, options);
+        setInjectorFactory(createAngularInjector.bind(null, Injector));
         return injector;
     } catch {
         try {
@@ -56,24 +59,25 @@ export function createInjector(options: { providers: any[]; parent?: any }): Ada
     }
 }
 
-export function createAngularInjector({ providers, parent }: { providers: any[]; parent?: any }) {
-    const { Injector } = require('@angular/core');
+
+export function createAngularInjector(Injector: typeof import('@angular/core').Injector, { providers, parent }: { providers: any[]; parent?: any }): AdamantInjector {
     return Injector.create({
         parent,
         providers: [
             ...providers,
             { provide: ADAMANT_INJECTOR, useExisting: Injector },
-            { provide: ADAMANT_INJECTOR_FACTORY, useValue: createAngularInjector }
-        ]
+            { provide: ADAMANT_INJECTOR_FACTORY, useValue: createAngularInjector.bind(null, Injector) },
+        ],
     });
 }
-export function createInjectionJsInjector({ providers, parent }: { providers: any[]; parent?: any }) {
+
+export function createInjectionJsInjector({ providers, parent }: { providers: any[]; parent?: any }): AdamantInjector {
     const { Injector, ReflectiveInjector } = require('injection-js');
     return ReflectiveInjector.resolveAndCreate(
         [
             ...providers,
             { provide: ADAMANT_INJECTOR, useExisting: Injector },
-            { provide: ADAMANT_INJECTOR_FACTORY, useValue: createInjectionJsInjector }
+            { provide: ADAMANT_INJECTOR_FACTORY, useValue: createInjectionJsInjector },
         ],
         parent
     );

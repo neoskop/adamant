@@ -1,8 +1,8 @@
 import { Ctor, populate, pushPropertyMetadata } from '../utils/metadata';
 import { RelationMetadata } from './relation';
 
-export class HasManyMapMetadata<T> extends RelationMetadata<T> {
-    default?: { [key: string]: T };
+export class HasManyMapMetadata<T> extends RelationMetadata<T, { [key: string]: T }> {
+    // default?: { [key: string]: T };
 }
 
 export function HasManyMap<T>(

@@ -1,35 +1,29 @@
-import { InjectionToken } from '@angular/core';
+export class AdamantInjectionToken<T> {
+    /** @internal */
+    readonly ngMetadataName = 'InjectionToken';
 
-export interface AdamantInjectionToken<T> extends InjectionToken<T> {}
+    readonly ɵprov: unknown;
 
-export interface StaticAdamantInjectionToken extends Function {
-    new <T>(desc: string): AdamantInjectionToken<T>;
+    /**
+     * @param _desc   Description for the token,
+     *                used only for debugging purposes,
+     *                it should but does not need to be unique
+     */
+    constructor(protected _desc: string) {
+        this.ɵprov = undefined;
+    }
+
+    /**
+     * @internal
+     */
+    get multi(): AdamantInjectionToken<Array<T>> {
+        return this as AdamantInjectionToken<Array<T>>;
+    }
+
+    toString(): string {
+        return `InjectionToken ${this._desc}`;
+    }
 }
-
-export const AdamantInjectionToken: StaticAdamantInjectionToken = InjectionToken;
-
-// declare class AdamantInjectionToken<T> extends InjectionToken<T> {}
-//
-// export { AdamantInjectionToken };
-//
-// export function injectionTokenFactory() {
-//     try {
-//         const { InjectionToken } = require('@angular/core');
-//         return InjectionToken;
-//     } catch {
-//         try {
-//             const { InjectionToken } = require('injection-js');
-//             return InjectionToken;
-//         } catch {
-//             throwMissingInjector();
-//         }
-//     }
-// }
-//
-// Object.defineProperty(exports, 'AdamantInjectionToken', {
-//     enumerable: true,
-//     value: injectionTokenFactory()
-// });
 
 export function throwMissingInjector() {
     throw new Error('Dependency Injection implementation missing, provide "@angular/core" or "injection-js"');
