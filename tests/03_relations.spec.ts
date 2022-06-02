@@ -1,6 +1,3 @@
-import { expect } from 'chai';
-import 'mocha';
-import { SinonSpy, spy } from 'sinon';
 import {
     AdamantConnectionManager,
     AdamantRepository,
@@ -13,7 +10,8 @@ import {
     HasMany,
     HasManyMap,
     Id,
-    setInjectorFactory
+    InjectorFactory,
+    setInjectorFactory,
 } from '../src';
 import { MemoryPouchDB } from './pouchdb';
 
@@ -70,27 +68,31 @@ class JoinAB {
     b?: EntityB;
 }
 
-for (const [name, factory] of new Map<string, Function>([
-    ['@angular/core', createAngularInjector],
-    ['injection-js', createInjectionJsInjector]
+for (const [name, factory] of new Map<string, () => Promise<InjectorFactory>>([
+    ['@angular/core', async () => createAngularInjector.bind(null, (await new Function("return import('@angular/core')")()).Injector)],
+    ['injection-js', async () => createInjectionJsInjector],
 ])) {
     describe(name, () => {
-        beforeEach(() => {
-            setInjectorFactory(factory);
+        beforeEach(async () => {
+            setInjectorFactory(await factory());
         });
         describe('Relations', () => {
             let db: PouchDB.Database<any>;
             let connection: AdamantConnectionManager;
             let repository: AdamantRepository<BaseEntity>;
-            let allDocsSpy: SinonSpy;
+            let allDocsSpy: jest.SpyInstance;
 
             beforeEach(async () => {
                 db = new MemoryPouchDB('test');
-                connection = createAdamantConnection(() => db);
+                connection = await createAdamantConnection(() => db);
                 repository = connection.getRepository(BaseEntity);
-                allDocsSpy = spy(db, 'allDocs');
+                allDocsSpy = jest.spyOn(db, 'allDocs');
 
-                await db.bulkDocs([{ _id: 'rel_2_a', id: 'a' }, { _id: 'rel_2_b', id: 'b' }, { _id: 'rel_2_c', id: 'c' }]);
+                await db.bulkDocs([
+                    { _id: 'rel_2_a', id: 'a' },
+                    { _id: 'rel_2_b', id: 'b' },
+                    { _id: 'rel_2_c', id: 'c' },
+                ]);
             });
 
             afterEach(() => {
@@ -110,24 +112,22 @@ for (const [name, factory] of new Map<string, Function>([
 
                 const e = await repository.read('a');
 
-                expect(e.belongsTo).to.be.instanceOf(RelEntity);
-                expect(e.belongsTo!.id).to.be.equal('a');
+                expect(e.belongsTo).toBeInstanceOf(RelEntity);
+                expect(e.belongsTo!.id).toEqual('a');
 
-                expect(e.hasMany)
-                    .to.be.an('array')
-                    .with.length(2);
-                expect(e.hasMany![0]).to.be.instanceOf(RelEntity);
-                expect(e.hasMany![0].id).to.be.equal('a');
-                expect(e.hasMany![1]).to.be.instanceOf(RelEntity);
-                expect(e.hasMany![1].id).to.be.equal('b');
+                expect(e.hasMany).toBeInstanceOf(Array);
+                expect(e.hasMany!.length).toEqual(2);
+                expect(e.hasMany![0]).toBeInstanceOf(RelEntity);
+                expect(e.hasMany![0].id).toEqual('a');
+                expect(e.hasMany![1]).toBeInstanceOf(RelEntity);
+                expect(e.hasMany![1].id).toEqual('b');
 
-                expect(e.hasManyMap)
-                    .to.be.an('object')
-                    .with.keys('b', 'c');
-                expect(e.hasManyMap!.b).to.be.instanceOf(RelEntity);
-                expect(e.hasManyMap!.b.id).to.be.equal('b');
-                expect(e.hasManyMap!.c).to.be.instanceOf(RelEntity);
-                expect(e.hasManyMap!.c.id).to.be.equal('c');
+                expect(e.hasManyMap).toHaveProperty('b');
+                expect(e.hasManyMap).toHaveProperty('c');
+                expect(e.hasManyMap!.b).toBeInstanceOf(RelEntity);
+                expect(e.hasManyMap!.b.id).toEqual('b');
+                expect(e.hasManyMap!.c).toBeInstanceOf(RelEntity);
+                expect(e.hasManyMap!.c.id).toEqual('c');
             });
 
             it('should write and read entity with circular relations', async () => {
@@ -160,20 +160,18 @@ for (const [name, factory] of new Map<string, Function>([
 
                 const res = await connection.getRepository(EntityA).readAll();
 
-                expect(res)
-                    .to.be.an('array')
-                    .with.length(1);
-                expect(res[0].joins)
-                    .to.be.an('array')
-                    .with.length(2);
-                expect(res[0].joins![0].a).to.be.equal(res[0]);
-                expect(res[0].joins![0].b).to.be.instanceOf(EntityB);
-                expect(res[0].joins![0].b!.joins![0]).to.be.equal(res[0].joins![0]);
-                expect(res[0].joins![1].a).to.be.equal(res[0]);
-                expect(res[0].joins![1].b).to.be.instanceOf(EntityB);
-                expect(res[0].joins![1].b!.joins![0]).to.be.equal(res[0].joins![1]);
+                expect(res).toBeInstanceOf(Array);
+                expect(res.length).toEqual(1);
+                expect(res[0].joins).toBeInstanceOf(Array);
+                expect(res[0].joins!.length).toEqual(2);
+                expect(res[0].joins![0].a).toEqual(res[0]);
+                expect(res[0].joins![0].b).toBeInstanceOf(EntityB);
+                expect(res[0].joins![0].b!.joins![0]).toEqual(res[0].joins![0]);
+                expect(res[0].joins![1].a).toEqual(res[0]);
+                expect(res[0].joins![1].b).toBeInstanceOf(EntityB);
+                expect(res[0].joins![1].b!.joins![0]).toEqual(res[0].joins![1]);
 
-                expect(allDocsSpy).to.have.callCount(3);
+                expect(allDocsSpy).toHaveBeenCalledTimes(3);
             });
         });
     });

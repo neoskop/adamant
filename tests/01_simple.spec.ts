@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-import 'mocha';
 import {
     AdamantConnectionManager,
     AdamantRepository,
@@ -8,8 +6,10 @@ import {
     createInjectionJsInjector,
     Entity,
     Id,
+    InjectorFactory,
+    // ngCore,
     Property,
-    setInjectorFactory
+    setInjectorFactory,
 } from '../src';
 import { MemoryPouchDB } from './pouchdb';
 
@@ -22,13 +22,13 @@ class TestEntity {
     property?: string;
 }
 
-for (const [name, factory] of new Map<string, Function>([
-    ['@angular/core', createAngularInjector],
-    ['injection-js', createInjectionJsInjector]
+for (const [name, factory] of new Map<string, () => Promise<InjectorFactory>>([
+    ['@angular/core', async () => createAngularInjector.bind(null, (await new Function("return import('@angular/core')")()).Injector)],
+    ['injection-js', async () => createInjectionJsInjector],
 ])) {
     describe(name, () => {
-        beforeEach(() => {
-            setInjectorFactory(factory);
+        beforeEach(async () => {
+            setInjectorFactory(await factory());
         });
 
         describe('Simple CRUD', () => {
@@ -38,13 +38,13 @@ for (const [name, factory] of new Map<string, Function>([
 
             beforeEach(async () => {
                 db = new MemoryPouchDB('test');
-                connection = createAdamantConnection(() => db);
+                connection = await createAdamantConnection(() => db);
                 repository = connection.getRepository(TestEntity);
 
                 await db.bulkDocs([
                     { _id: 'test_2_a', id: 'a', property: 'propA' },
                     { _id: 'test_2_b', id: 'b', property: 'propB' },
-                    { _id: 'test_2_c', id: 'c', property: null }
+                    { _id: 'test_2_c', id: 'c', property: null },
                 ]);
             });
 
@@ -55,43 +55,47 @@ for (const [name, factory] of new Map<string, Function>([
             it('should read single entity', async () => {
                 const entity = await repository.read('b');
 
-                expect(entity).to.be.instanceOf(TestEntity);
-                expect(entity.id).to.be.equal('b');
-                expect(entity.property).to.be.equal('propB');
+                expect(entity).toBeInstanceOf(TestEntity);
+                expect(entity.id).toEqual('b');
+                expect(entity.property).toEqual('propB');
             });
 
             it('should throw on missing entity', async () => {
-                return expect(repository.read('z')).to.eventually.rejectedWith('missing');
+                await expect(repository.read('z')).rejects.toEqual({
+                    id: 'test_2_z',
+                    message: 'missing',
+                    name: 'not_found',
+                    reason: 'missing',
+                    status: 404,
+                });
             });
 
             it('should cache open connections', () => {
-                expect(connection.getOpenConnections())
-                    .to.be.an('array')
-                    .with.length(1);
+                expect(connection.getOpenConnections()).toBeInstanceOf(Array);
+                expect(connection.getOpenConnections().length).toEqual(1);
             });
 
             it('should clear cached connections', () => {
                 connection.clearConnections();
-                expect(connection.getOpenConnections())
-                    .to.be.an('array')
-                    .with.length(0);
+                expect(connection.getOpenConnections()).toBeInstanceOf(Array);
+                expect(connection.getOpenConnections().length).toEqual(0);
             });
 
             it('should read all entities', async () => {
                 const entities = await repository.readAll();
 
-                expect(entities.length).to.be.equal(3);
-                expect(entities[0].id).to.be.equal('a');
-                expect(entities[1].id).to.be.equal('b');
-                expect(entities[2].id).to.be.equal('c');
+                expect(entities.length).toEqual(3);
+                expect(entities[0].id).toEqual('a');
+                expect(entities[1].id).toEqual('b');
+                expect(entities[2].id).toEqual('c');
             });
 
             it('should read many entities', async () => {
                 const entities = await repository.readAll(['c', 'b']);
 
-                expect(entities.length).to.be.equal(2);
-                expect(entities[0].id).to.be.equal('b');
-                expect(entities[1].id).to.be.equal('c');
+                expect(entities.length).toEqual(2);
+                expect(entities[0].id).toEqual('b');
+                expect(entities[1].id).toEqual('c');
             });
 
             it('should create an entity', async () => {
@@ -99,15 +103,15 @@ for (const [name, factory] of new Map<string, Function>([
 
                 await repository.create(entity);
 
-                expect(entity._id).to.be.equal('test_2_d');
-                expect(entity._rev).to.match(/^1-[a-z0-9]{32}$/);
+                expect(entity._id).toEqual('test_2_d');
+                expect(entity._rev).toMatch(/^1-[a-z0-9]{32}$/);
             });
 
-            it('should throw on duplicate id', () => {
+            it('should throw on duplicate id', async () => {
                 const entity = new TestEntity();
                 entity.id = 'c';
 
-                return expect(repository.create(entity)).to.eventually.rejected;
+                return expect(repository.create(entity)).rejects.toBeTruthy();
             });
 
             it('should update an entity', async () => {
@@ -116,10 +120,10 @@ for (const [name, factory] of new Map<string, Function>([
 
                 await repository.update(entity);
 
-                expect(entity._id).to.be.equal('test_2_c');
-                expect(entity._rev).to.match(/^2-[a-z0-9]{32}$/);
+                expect(entity._id).toEqual('test_2_c');
+                expect(entity._rev).toMatch(/^2-[a-z0-9]{32}$/);
 
-                expect((await repository.read('c')).property).to.be.equal('propC');
+                expect((await repository.read('c')).property).toEqual('propC');
             });
 
             it('should update an entity even without changes', async () => {
@@ -127,10 +131,10 @@ for (const [name, factory] of new Map<string, Function>([
 
                 await repository.update(entity);
 
-                expect(entity._id).to.be.equal('test_2_c');
-                expect(entity._rev).to.match(/^2-[a-z0-9]{32}$/);
+                expect(entity._id).toEqual('test_2_c');
+                expect(entity._rev).toMatch(/^2-[a-z0-9]{32}$/);
 
-                expect((await repository.read('c')).property).to.be.null;
+                expect((await repository.read('c')).property).toBeNull();
             });
 
             it('should upsert an entity', async () => {
@@ -139,10 +143,10 @@ for (const [name, factory] of new Map<string, Function>([
 
                 await repository.upsert(entity);
 
-                expect(entity._id).to.be.equal('test_2_c');
-                expect(entity._rev).to.match(/^2-[a-z0-9]{32}$/);
+                expect(entity._id).toEqual('test_2_c');
+                expect(entity._rev).toMatch(/^2-[a-z0-9]{32}$/);
 
-                expect((await repository.read('c')).property).to.be.equal('propC');
+                expect((await repository.read('c')).property).toEqual('propC');
             });
 
             it('should not upsert an entity without changes', async () => {
@@ -150,10 +154,10 @@ for (const [name, factory] of new Map<string, Function>([
 
                 await repository.upsert(entity);
 
-                expect(entity._id).to.be.equal('test_2_c');
-                expect(entity._rev).to.match(/^1-[a-z0-9]{32}$/);
+                expect(entity._id).toEqual('test_2_c');
+                expect(entity._rev).toMatch(/^1-[a-z0-9]{32}$/);
 
-                expect((await repository.read('c')).property).to.be.null;
+                expect((await repository.read('c')).property).toBeNull();
             });
 
             it('should delete an entity', async () => {
@@ -161,22 +165,24 @@ for (const [name, factory] of new Map<string, Function>([
 
                 await repository.delete(entity);
 
-                expect(entity._id).to.be.equal('test_2_c');
-                expect((entity as any)._deleted).to.be.true;
-                expect(entity._rev).to.match(/^2-[a-z0-9]{32}$/);
+                expect(entity._id).toEqual('test_2_c');
+                expect((entity as any)._deleted).toBeTruthy();
+                expect(entity._rev).toMatch(/^2-[a-z0-9]{32}$/);
 
-                expect(repository.read('c')).to.eventually.rejectedWith('missing');
+                expect(repository.read('c')).rejects.toEqual({
+                    id: 'test_2_c',
+                    message: 'missing',
+                    name: 'not_found',
+                    reason: 'missing',
+                    status: 404,
+                });
             });
 
             it('should read with query', async () => {
-                const entities = await repository
-                    .query()
-                    .selector('id', { $gte: 'b' })
-                    .limit(1)
-                    .resolve();
+                const entities = await repository.query().selector('id', { $gte: 'b' }).limit(1).resolve();
 
-                expect(entities).to.have.length(1);
-                expect(entities[0].id).to.be.equal('b');
+                expect(entities.length).toEqual(1);
+                expect(entities[0].id).toEqual('b');
             });
         });
     });

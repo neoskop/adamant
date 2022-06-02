@@ -1,8 +1,4 @@
-import { expect, use } from 'chai';
-import 'mocha';
 import { Entity, EntityMetadataCollection, Id, Property, ValidatorImpl } from '.';
-
-use(require('chai-as-promised'));
 
 @Entity('default-entity')
 export class TestEntity {
@@ -27,15 +23,15 @@ describe('ValidatorImpl', () => {
 
     describe('validate', () => {
         it('should return a promise', () => {
-            expect(validator.validate({ id: 'id', optional: 'optional', required: 'required' })).to.be.instanceOf(Promise);
+            expect(validator.validate({ id: 'id', optional: 'optional', required: 'required' })).toBeInstanceOf(Promise);
         });
 
         it('should validate valid entity', async () => {
-            expect(await validator.validate({ id: 'id', optional: 'optional', required: 'required' })).to.be.true;
+            expect(await validator.validate({ id: 'id', optional: 'optional', required: 'required' })).toBeTruthy();
         });
 
         it('should throw on validation error', () => {
-            return expect(validator.validate({ id: 'id' } as any)).to.be.eventually.rejectedWith(Error, 'Property "required" required');
+            return expect(validator.validate({ id: 'id' } as any)).rejects.toEqual(new Error('Property "required" required'));
         });
     });
 });

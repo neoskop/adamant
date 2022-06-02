@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-import 'mocha';
 import {
     BelongsTo,
     BelongsToMetadata,
@@ -90,57 +88,57 @@ describe('EntityMetadataCollection', () => {
     it('create create default metadata', () => {
         const metadata = EntityMetadataCollection.create(DefaultMetadataFixture);
 
-        expect(metadata).to.be.instanceOf(EntityMetadataCollection);
+        expect(metadata).toBeInstanceOf(EntityMetadataCollection);
     });
 
     it('should throw on missing entity annotation', () => {
         expect(() => {
             EntityMetadataCollection.create(MissingEntityMetadataFixture);
-        }).to.throw(`Missing metadata 'name' for entity "MissingEntityMetadataFixture"`);
+        }).toThrow(`Missing metadata 'name' for entity "MissingEntityMetadataFixture"`);
     });
 
     it('should throw on missing id annotation', () => {
         expect(() => {
             EntityMetadataCollection.create(MissingIdMetadataFixture);
-        }).to.throw(`Missing metadata 'id' for entity "MissingIdMetadataFixture"`);
+        }).toThrow(`Missing metadata 'id' for entity "MissingIdMetadataFixture"`);
     });
 
     it('should not throw on missing id annotation on inline entity', () => {
         const metadata = EntityMetadataCollection.create(InlineTestEntity);
 
-        expect(metadata).to.be.instanceOf(EntityMetadataCollection);
+        expect(metadata).toBeInstanceOf(EntityMetadataCollection);
     });
 
     it('should provide full metadata', () => {
         const metadata = EntityMetadataCollection.create(FullMetadataFixture);
 
-        expect(metadata.name).to.be.equal('full');
-        expect(metadata.attachments).to.be.false;
-        expect(metadata.hydrator).to.be.undefined;
-        expect(metadata.validator).to.be.undefined;
+        expect(metadata.name).toEqual('full');
+        expect(metadata.attachments).toBeFalsy();
+        expect(metadata.hydrator).toBeUndefined();
+        expect(metadata.validator).toBeUndefined();
 
-        expect(metadata.id).to.be.equal('id');
-        expect(metadata.idType).to.be.equal(String);
-        expect(metadata.idStrategy).to.be.equal(IdStrategy.Static);
+        expect(metadata.id).toEqual('id');
+        expect(metadata.idType).toEqual(String);
+        expect(metadata.idStrategy).toEqual(IdStrategy.Static);
 
-        expect(metadata.properties).to.be.instanceOf(Map);
+        expect(metadata.properties).toBeInstanceOf(Map);
 
-        expect(metadata.properties.get('id')).to.be.eql(Object.assign(new IdMetadata(), { type: String, strategy: IdStrategy.Static }));
-        expect(metadata.properties.get('name')).to.be.eql(Object.assign(new PropertyMetadata(), { type: String, required: false }));
-        expect(metadata.properties.get('belongsToImplicit')).to.be.eql(
+        expect(metadata.properties.get('id')).toEqual(Object.assign(new IdMetadata(), { type: String, strategy: IdStrategy.Static }));
+        expect(metadata.properties.get('name')).toEqual(Object.assign(new PropertyMetadata(), { type: String, required: false }));
+        expect(metadata.properties.get('belongsToImplicit')).toEqual(
             Object.assign(new BelongsToMetadata(), { type: Implicit, required: false })
         );
-        expect(metadata.properties.get('belongsToExplicit')).to.be.eql(
+        expect(metadata.properties.get('belongsToExplicit')).toEqual(
             Object.assign(new BelongsToMetadata(), { type: Explicit, required: false })
         );
-        expect(metadata.properties.get('inlineImplicit')).to.be.eql(
+        expect(metadata.properties.get('inlineImplicit')).toEqual(
             Object.assign(new InlineMetadata(), { type: Implicit, required: false })
         );
-        expect(metadata.properties.get('inlineExplicit')).to.be.eql(
+        expect(metadata.properties.get('inlineExplicit')).toEqual(
             Object.assign(new InlineMetadata(), { type: Explicit, required: false })
         );
-        expect(metadata.properties.get('hasMany')).to.be.eql(Object.assign(new HasManyMetadata(), { type: Explicit, required: false }));
-        expect(metadata.properties.get('hasManyMap')).to.be.eql(
+        expect(metadata.properties.get('hasMany')).toEqual(Object.assign(new HasManyMetadata(), { type: Explicit, required: false }));
+        expect(metadata.properties.get('hasManyMap')).toEqual(
             Object.assign(new HasManyMapMetadata(), { type: Explicit, required: false })
         );
     });
@@ -150,16 +148,16 @@ describe('EntityMetadataCollection', () => {
     it('create create default metadata', () => {
         const metadata = DesignDocMetadataCollection.create(TestDesignDoc);
 
-        expect(metadata).to.be.instanceOf(DesignDocMetadataCollection);
+        expect(metadata).toBeInstanceOf(DesignDocMetadataCollection);
     });
 
     it('should provide full metadata', () => {
         const metadata = DesignDocMetadataCollection.create(TestDesignDoc);
 
-        expect(metadata.entity).to.be.equal(DefaultMetadataFixture);
-        expect(metadata.name).to.be.equal('default-entity');
-        expect(metadata.views).to.be.eql(new Set(['exampleView']));
-        expect(metadata.filters).to.be.eql(new Set(['exampleFilter']));
-        expect(metadata.validateDoc).to.be.equal('exampleValidateDoc');
+        expect(metadata.entity).toEqual(DefaultMetadataFixture);
+        expect(metadata.name).toEqual('default-entity');
+        expect(metadata.views).toEqual(new Set(['exampleView']));
+        expect(metadata.filters).toEqual(new Set(['exampleFilter']));
+        expect(metadata.validateDoc).toEqual('exampleValidateDoc');
     });
 });

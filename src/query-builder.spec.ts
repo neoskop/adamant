@@ -1,8 +1,4 @@
-import { expect, use } from 'chai';
-import 'mocha';
 import { QueryBuilder } from '.';
-
-use(require('sinon-chai'));
 
 describe('QueryBuilder', () => {
     let builder: QueryBuilder<any>;
@@ -12,8 +8,8 @@ describe('QueryBuilder', () => {
     });
 
     it('should create empty query builder', () => {
-        expect(builder).to.exist;
-        expect(builder.toFindRequest()).to.be.eql({
+        expect(builder).not.toBeUndefined();
+        expect(builder.toFindRequest()).toEqual({
             selector: {
                 _id: {
                     $gt: 'entity_0',
@@ -25,7 +21,7 @@ describe('QueryBuilder', () => {
 
     describe('limit', () => {
         it('should return query with limit', () => {
-            expect(builder.limit(10).toFindRequest()).to.be.eql({
+            expect(builder.limit(10).toFindRequest()).toEqual({
                 selector: {
                     _id: {
                         $gt: 'entity_0',
@@ -39,7 +35,7 @@ describe('QueryBuilder', () => {
 
     describe('skip', () => {
         it('should return query with skip', () => {
-            expect(builder.skip(10).toFindRequest()).to.be.eql({
+            expect(builder.skip(10).toFindRequest()).toEqual({
                 selector: {
                     _id: {
                         $gt: 'entity_0',
@@ -53,7 +49,7 @@ describe('QueryBuilder', () => {
 
     describe('sort', () => {
         it('should sort query with string sort', () => {
-            expect(builder.sort('field').toFindRequest()).to.be.eql({
+            expect(builder.sort('field').toFindRequest()).toEqual({
                 selector: {
                     _id: {
                         $gt: 'entity_0',
@@ -65,7 +61,7 @@ describe('QueryBuilder', () => {
         });
 
         it('should sort query with string sort asc', () => {
-            expect(builder.sort('field', 'asc').toFindRequest()).to.be.eql({
+            expect(builder.sort('field', 'asc').toFindRequest()).toEqual({
                 selector: {
                     _id: {
                         $gt: 'entity_0',
@@ -77,7 +73,7 @@ describe('QueryBuilder', () => {
         });
 
         it('should sort query with object sort', () => {
-            expect(builder.sort({ field: 'desc' }).toFindRequest()).to.be.eql({
+            expect(builder.sort({ field: 'desc' }).toFindRequest()).toEqual({
                 selector: {
                     _id: {
                         $gt: 'entity_0',
@@ -91,7 +87,7 @@ describe('QueryBuilder', () => {
 
     describe('selector', () => {
         it('should select for field/condition', () => {
-            expect(builder.selector('field', 'foobar').toFindRequest()).to.be.eql({
+            expect(builder.selector('field', 'foobar').toFindRequest()).toEqual({
                 selector: {
                     _id: {
                         $gt: 'entity_0',
@@ -110,7 +106,7 @@ describe('QueryBuilder', () => {
                     .selector('field', { $gt: '0' })
                     .selector('field', { $lt: '9' })
                     .toFindRequest()
-            ).to.be.eql({
+            ).toEqual({
                 selector: {
                     _id: {
                         $gt: 'entity_0',
@@ -125,7 +121,7 @@ describe('QueryBuilder', () => {
         });
 
         it('should select for selector', () => {
-            expect(builder.selector({ field: { $gt: '0', $lt: '9' } }).toFindRequest()).to.be.eql({
+            expect(builder.selector({ field: { $gt: '0', $lt: '9' } }).toFindRequest()).toEqual({
                 selector: {
                     _id: {
                         $gt: 'entity_0',

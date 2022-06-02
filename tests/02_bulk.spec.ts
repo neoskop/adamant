@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-import 'mocha';
 import {
     AdamantConnectionManager,
     AdamantRepository,
@@ -8,6 +6,7 @@ import {
     createInjectionJsInjector,
     Entity,
     Id,
+    InjectorFactory,
     Property,
     setInjectorFactory
 } from '../src';
@@ -22,13 +21,13 @@ class TestEntity {
     property?: string;
 }
 
-for (const [name, factory] of new Map<string, Function>([
-    ['@angular/core', createAngularInjector],
-    ['injection-js', createInjectionJsInjector]
+for (const [name, factory] of new Map<string, () => Promise<InjectorFactory>>([
+    ['@angular/core', async () => createAngularInjector.bind(null, (await new Function("return import('@angular/core')")()).Injector)],
+    ['injection-js', async () => createInjectionJsInjector],
 ])) {
     describe(name, () => {
-        beforeEach(() => {
-            setInjectorFactory(factory);
+        beforeEach(async () => {
+            setInjectorFactory(await factory());
         });
         describe('Bulk', () => {
             let db: PouchDB.Database<any>;
@@ -37,7 +36,7 @@ for (const [name, factory] of new Map<string, Function>([
 
             beforeEach(async () => {
                 db = new MemoryPouchDB('test');
-                connection = createAdamantConnection(() => db);
+                connection = await createAdamantConnection(() => db);
                 repository = connection.getRepository(TestEntity);
 
                 await db.bulkDocs([
@@ -57,11 +56,11 @@ for (const [name, factory] of new Map<string, Function>([
 
                 await repository.bulk.create([d, e]);
 
-                expect(d._id).to.be.equal('test_2_d');
-                expect(d._rev).to.match(/^1-[a-z0-9]{32}$/);
+                expect(d._id).toEqual('test_2_d');
+                expect(d._rev).toMatch(/^1-[a-z0-9]{32}$/);
 
-                expect(e._id).to.be.equal('test_2_e');
-                expect(e._rev).to.match(/^1-[a-z0-9]{32}$/);
+                expect(e._id).toEqual('test_2_e');
+                expect(e._rev).toMatch(/^1-[a-z0-9]{32}$/);
             });
 
             it('should update in bulk in bulk', async () => {
@@ -71,16 +70,16 @@ for (const [name, factory] of new Map<string, Function>([
 
                 await repository.bulk.update([a, b]);
 
-                expect(a._id).to.be.equal('test_2_a');
-                expect(a._rev).to.match(/^2-[a-z0-9]{32}$/);
+                expect(a._id).toEqual('test_2_a');
+                expect(a._rev).toMatch(/^2-[a-z0-9]{32}$/);
 
-                expect(b._id).to.be.equal('test_2_b');
-                expect(b._rev).to.match(/^2-[a-z0-9]{32}$/);
+                expect(b._id).toEqual('test_2_b');
+                expect(b._rev).toMatch(/^2-[a-z0-9]{32}$/);
 
                 const entities = await repository.readAll();
-                expect(entities[0]._rev).to.match(/^2-[a-z0-9]{32}$/);
-                expect(entities[1]._rev).to.match(/^2-[a-z0-9]{32}$/);
-                expect(entities[2]._rev).to.match(/^1-[a-z0-9]{32}$/);
+                expect(entities[0]._rev).toMatch(/^2-[a-z0-9]{32}$/);
+                expect(entities[1]._rev).toMatch(/^2-[a-z0-9]{32}$/);
+                expect(entities[2]._rev).toMatch(/^1-[a-z0-9]{32}$/);
             });
 
             it('should delete in bulk in bulk', async () => {
@@ -88,17 +87,17 @@ for (const [name, factory] of new Map<string, Function>([
 
                 await repository.bulk.delete([a, b]);
 
-                expect(a._id).to.be.equal('test_2_a');
-                expect(a._rev).to.match(/^2-[a-z0-9]{32}$/);
-                expect((a as any)._deleted).to.be.true;
+                expect(a._id).toEqual('test_2_a');
+                expect(a._rev).toMatch(/^2-[a-z0-9]{32}$/);
+                expect((a as any)._deleted).toBeTruthy();
 
-                expect(b._id).to.be.equal('test_2_b');
-                expect(b._rev).to.match(/^2-[a-z0-9]{32}$/);
-                expect((b as any)._deleted).to.be.true;
+                expect(b._id).toEqual('test_2_b');
+                expect(b._rev).toMatch(/^2-[a-z0-9]{32}$/);
+                expect((b as any)._deleted).toBeTruthy();
 
                 const entities = await repository.readAll();
-                expect(entities).to.have.length(1);
-                expect(entities[0]._rev).to.match(/^1-[a-z0-9]{32}$/);
+                expect(entities.length).toEqual(1);
+                expect(entities[0]._rev).toMatch(/^1-[a-z0-9]{32}$/);
             });
         });
     });
