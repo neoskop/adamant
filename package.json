@@ -16,7 +16,8 @@
         "publish-next": "npm run build && npm publish dist --tag next",
         "publish-latest-only": "npm run build && npm publish dist",
         "publish-latest": "npm run publish-latest-only && npm dist-tag add `jq '.name' package.json -r`@`jq '.version' package.json -r` next",
-        "prettier": "prettier --write 'bin/*.js' 'src/**/*.ts' 'tests/**/*.ts'"
+        "prettier": "prettier --write 'bin/*.js' 'src/**/*.ts' 'tests/**/*.ts'",
+        "prepare": "husky install"
     },
     "devDependencies": {
         "@angular/animations": "13.3.10",
@@ -68,15 +69,9 @@
             "**/test-init.ts"
         ]
     },
-    "husky": {
-        "hooks": {
-            "pre-commit": "lint-staged"
-        }
-    },
     "lint-staged": {
         "*.{js,json,ts,md}": [
-            "prettier --write",
-            "git add"
+            "prettier --write"
         ]
     }
 }
